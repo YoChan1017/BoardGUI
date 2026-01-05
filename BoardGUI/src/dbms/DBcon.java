@@ -6,13 +6,24 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DBcon {
+	private static String driver = "org.mariadb.jdbc.Driver";
+	private static String serverUrl = "jdbc:mariadb://localhost:3307/";
+	private static String dbName = "BoardDB";
+	private static String username = "root";
+	private static String password = "1234";
+	
+	// 외부 클래스 연결용
+	public static Connection getConnection() throws SQLException {
+		try {
+			Class.forName(driver);
+			return DriverManager.getConnection(serverUrl + dbName, username, password);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			throw new SQLException("Driver Load Failed");
+		}
+	}
 
 	public static void main(String[] args) {
-		String driver = "org.mariadb.jdbc.Driver";
-		String serverUrl = "jdbc:mariadb://localhost:3307/";
-		String dbName = "BoardDB";
-		String username = "root";
-		String password = "1234";
 		
 		Connection con = null;
 		Statement stmt = null;
