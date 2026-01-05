@@ -21,7 +21,7 @@ public class LoginGUI extends JFrame implements ActionListener {
 		setTitle("Login");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		JPanel panel = new JPanel();
-		panel.setLayout(new GridLayout(0, 2, 10, 5));	// 행(0=자동), 열, 수평간격, 수직간격
+		panel.setLayout(new GridLayout(0, 2, 10, 10));	// 행(0=자동), 열, 수평간격, 수직간격
 		userId = new JTextField(30);
 		userPassword = new JTextField(30);
 		

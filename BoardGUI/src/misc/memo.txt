@@ -1,6 +1,11 @@
 1. DBMS
 Driver 연결 및 해제
-Database 확인 > 없을 시 생성 쿼리문 작성 (BoardDB)
+Database 확인 > 없을 시 생성 쿼리문 작성
+Table 확인 > 없을 시 생성 쿼리문 작성
+각 테이블 DAO/DTO/VO 작성
+
+Database
+BoardDB
 
 Table
 > 유저		(users)			유저 권한 : admin(최고 관리자), manager(부운영자), user(기본)
@@ -10,15 +15,15 @@ Table
 > 첨부파일	(attachments)	게시글 종속 데이터, 작성된 글의 대한 첨부파일
 
 Table_users
-> 고유 id
-> 로그인 id
-> 비밀번호
-> 표시용 닉네임
-> 권한
-> 숫자형 권한 레벨
-> 계정 활성 여부
-> 가입일
-> 회원 정보
+> 고유 id			user_id
+> 로그인 id			username		(30)
+> 비밀번호			password		(255) 해싱으로 인해 길이가 길어지므로 여유롭게
+> 표시용 닉네임		nickname		(30)
+> 권한				role			권한(admin(최고 관리자), manager(부운영자), user(기본))
+> 계정 활성 여부		is_active
+> 가입일				created_at
+
+
 
 2. GUI
 로그인 > 메인화면
