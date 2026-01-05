@@ -72,7 +72,7 @@ public class SignupGUI extends JFrame implements ActionListener {
 		btnsignup.addActionListener(this);
 		btncancel = new JButton("취소");
 		btncancel.addActionListener(this);
-		btnlogin = new JButton("로그인화면");
+		btnlogin = new JButton("돌아가기");
 		btnlogin.addActionListener(this);
 		
 		panel.add(btnsignup);

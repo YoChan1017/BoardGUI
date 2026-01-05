@@ -1,10 +1,13 @@
+# MariaDB Server 10.6.24 사용 (https://mariadb.org/download/?t=mariadb&p=mariadb&r=10.6.24&os=windows&cpu=x86_64&pkg=msi&mirror=blendbyte)
+# mariadb-java-client-3.5.7.jar > ClassPath 추가
+
 1. DBMS
 Driver 연결 및 해제
 Database 확인 > 없을 시 생성 쿼리문 작성
 Table 확인 > 없을 시 생성 쿼리문 작성
 
-각 테이블 DAO/DTO/VO/Entity 작성
-> DAO : DB 접근
+각 테이블 DAO/DTO 작성 (대규모 프로젝트가 아니므로 DAO와 DTO만 작성함)
+> DAO : DB 접근 (CRUD Query 실행)
 > DTO : 데이터 전달
 > VO : 값 자체를 표현
 > Entity : 실제 DB 테이블과 매핑

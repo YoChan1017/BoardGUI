@@ -1,8 +1,8 @@
 package dbms;
 
+// TableUsersDTO, DBcon 메서드 사용
+
 public class TableUsersDAO {
 
-	public static void main(String[] args) {
-		
-	}
+	// CRUD Query 작성
 }
