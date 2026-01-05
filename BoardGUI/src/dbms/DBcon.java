@@ -2,6 +2,7 @@ package dbms;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -20,6 +21,17 @@ public class DBcon {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 			throw new SQLException("Driver Load Failed");
+		}
+	}
+	
+	// 외부 클래스 연결해제용
+	public static void disConnection(Connection conn, Statement stmt, ResultSet rs) {
+		try {
+			if (rs != null) rs.close();
+			if (stmt != null) stmt.close();
+			if (conn != null) conn.close();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

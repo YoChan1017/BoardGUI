@@ -20,10 +20,12 @@ public class LoginGUI extends JFrame implements ActionListener {
 	public LoginGUI() {
 		setTitle("Login");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		
 		JPanel panel = new JPanel();
 		panel.setLayout(new GridLayout(0, 2, 10, 10));	// 행(0=자동), 열, 수평간격, 수직간격
-		userId = new JTextField(30);
-		userPassword = new JTextField(30);
+		
+		userId = new JTextField(15);
+		userPassword = new JTextField(15);
 		
 		btnlogin = new JButton("로그인");
 		btnlogin.addActionListener(this);
@@ -47,11 +49,29 @@ public class LoginGUI extends JFrame implements ActionListener {
 		setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));	// 수평간격 / 수직간격
 		add(panel);
 		pack();
+		setLocationRelativeTo(null);					// 중앙에 띄우기
+		// getConnection();
+	}
+	
+	// 입력 취소 메서드
+	private void reset() {
+		userId.setText("");
+		userPassword.setText("");
 	}
 	
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		
+	public void actionPerformed(ActionEvent event) {
+		if(event.getSource() == btnlogin) {
+			
+		} else if(event.getSource() == btncancel) {
+			reset();
+		} else if(event.getSource() == btnsignup) {
+			setVisible(false);
+			(new SignupGUI()).setVisible(true);
+		} else if(event.getSource() == btnexit) {
+			// disConnection();
+			System.exit(0);
+		}
 	}
 
 	public static void main(String[] args) {

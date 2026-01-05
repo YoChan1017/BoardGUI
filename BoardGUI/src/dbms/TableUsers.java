@@ -15,9 +15,12 @@ public class TableUsers {
 				+ "username VARCHAR(30) NOT NULL UNIQUE, "				// 유저 ID, 중복/null 안됨
 				+ "password VARCHAR(255) NOT NULL, "					// 유저 PW, 해싱 필요, null 안됨
 				+ "nickname VARCHAR(30) NOT NULL, "						// 유저 닉네임, null 안됨
+				+ "birth_date DATE, "									// 유저 생년월일
+				+ "phone VARCHAR(20), "									// 유저 전화번호
+				+ "email VARCHAR(100) UNIQUE, "							// 유저 이메일, 중복 안됨
 				+ "role VARCHAR(20) DEFAULT 'user', "					// 유저 권한, 기본값 'user'(일반유저)
 				+ "is_active BOOLEAN DEFAULT TRUE, "					// 계정 활성 여부, 기본값 'true'(활성)
-				+ "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"	// 생성날짜, 유저 데이터 생성 시 현재 시간 자동 입력
+				+ "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"		// 생성날짜, 유저 데이터 생성 시 현재 시간 자동 입력
 				+ ")";
 		// DBcon 클래스 호출로 SQL server connection
 		try (Connection conn = DBcon.getConnection();
