@@ -14,7 +14,7 @@ public class TableUsers {
 				+ "user_id INT AUTO_INCREMENT PRIMARY KEY, "			// 기본키
 				+ "username VARCHAR(30) NOT NULL UNIQUE, "				// 유저 ID, 중복/null 안됨
 				+ "password VARCHAR(255) NOT NULL, "					// 유저 PW, 해싱 필요, null 안됨
-				+ "nickname VARCHAR(30) NOT NULL, "						// 유저 닉네임, null 안됨
+				+ "nickname VARCHAR(30) NOT NULL UNIQUE, "				// 유저 닉네임, 중복/null 안됨
 				+ "birth_date DATE, "									// 유저 생년월일
 				+ "phone VARCHAR(20), "									// 유저 전화번호
 				+ "email VARCHAR(100) UNIQUE, "							// 유저 이메일, 중복 안됨

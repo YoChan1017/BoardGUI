@@ -18,7 +18,7 @@ public class LoginGUI extends JFrame implements ActionListener {
 	private JButton btnlogin, btncancel, btnsignup, btnexit; 
 	
 	public LoginGUI() {
-		setTitle("Login");
+		setTitle("로그인");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
 		JPanel panel = new JPanel();
@@ -49,8 +49,7 @@ public class LoginGUI extends JFrame implements ActionListener {
 		setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));	// 수평간격 / 수직간격
 		add(panel);
 		pack();
-		setLocationRelativeTo(null);					// 중앙에 띄우기
-		// getConnection();
+		setLocationRelativeTo(null);							// 화면 중앙에 띄우기
 	}
 	
 	// 입력 취소 메서드
@@ -62,14 +61,15 @@ public class LoginGUI extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		if(event.getSource() == btnlogin) {
-			
+			// 로그인 확인 추가
+			setVisible(false);							
+			(new MainGUI()).setVisible(true);
 		} else if(event.getSource() == btncancel) {
 			reset();
 		} else if(event.getSource() == btnsignup) {
-			setVisible(false);
-			(new SignupGUI()).setVisible(true);
+			setVisible(false);							// 현재 화면 숨기고
+			(new SignupGUI()).setVisible(true);			// SinupGUI 화면 표시
 		} else if(event.getSource() == btnexit) {
-			// disConnection();
 			System.exit(0);
 		}
 	}
