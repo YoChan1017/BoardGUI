@@ -1,7 +1,18 @@
 1. DBMS
 Driver 연결 및 해제
-Database 확인 > 없을 시 생성 (BoardDB)
+Database 확인 > 없을 시 생성 쿼리문 작성 (BoardDB)
 
-쿼리문 작성
+Table
+> 유저		(users)			유저 권한 : admin(최고 관리자), manager(부운영자), user(기본)
+> 게시판		(boards)		다중 게시판 제작을 위한 게시판 설정
+> 게시글		(posts)			메인 데이터, 게시판 내 유저가 작성하는 글
+> 댓글		(comments)		게시글 종속 데이터, 작성된 글의 대한 답글
+> 첨부파일	(attachments)	게시글 종속 데이터, 작성된 글의 대한 첨부파일
 
 2. GUI
+로그인 > 메인화면
+> 관리자 
+> 게시판 
+> 게시판 추가
+> 내 정보 확인
+> 로그아웃

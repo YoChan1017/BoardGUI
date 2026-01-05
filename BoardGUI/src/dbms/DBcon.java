@@ -28,7 +28,7 @@ public class DBcon {
 			
 			// Database 생성/확인
 			stmt = con.createStatement();
-			String sql = "CREATE DATABASE IF NOT EXISTS" + dbName;	// DB가 존재하지 않을 시 생성, 존재하는 경우 경고 메세지
+			String sql = "CREATE DATABASE IF NOT EXISTS " + dbName;	// DB가 존재하지 않을 시 생성, 존재하는 경우 경고 메세지 (EXISTS 뒤에 띄어쓰기 꼭 할 것)
 			stmt.executeUpdate(sql);
 			System.out.println("Database '" + dbName + "' created or already exists.");
 			
