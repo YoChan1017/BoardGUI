@@ -1,5 +1,7 @@
 1. DBMS
-DB 연결 및 해제
+Driver 연결 및 해제
+Database 확인 > 없을 시 생성 (BoardDB)
+
 쿼리문 작성
 
 2. GUI

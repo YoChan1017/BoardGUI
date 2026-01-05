@@ -2,6 +2,7 @@ package dbms;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DBcon {
@@ -40,8 +41,18 @@ public class DBcon {
 			con = DriverManager.getConnection(targetUrl, username, password);
 			System.out.println("Successfully connected to '" + dbName + "'");
 			
-		} catch () {
-			
+		} catch (ClassNotFoundException e) { // Driver Load에 문제가 있을 시
+			System.out.println("Driver Load Failed : " + e.getMessage());
+		} catch (SQLException e) { // DB 생성/확인에 문제가 있을 시
+			System.out.println("DB Connection Failed : " + e.getMessage());
+			e.printStackTrace();
+		} finally { // 연결 해제
+			try {
+				if (stmt != null) stmt.close();
+				if (con != null) con.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }
