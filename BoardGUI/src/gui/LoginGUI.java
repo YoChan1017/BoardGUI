@@ -52,6 +52,13 @@ public class LoginGUI extends JFrame implements ActionListener {
 		setLocationRelativeTo(null);							// 화면 중앙에 띄우기
 	}
 	
+	private void loginCheck() {
+		// 로그인 정보 조회(확인) 후 세션? 저장 추가
+		
+		setVisible(false);							
+		(new MainGUI()).setVisible(true);
+	}
+	
 	// 입력 취소 메서드
 	private void reset() {
 		userId.setText("");
@@ -61,9 +68,7 @@ public class LoginGUI extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		if(event.getSource() == btnlogin) {
-			// 로그인 확인 추가
-			setVisible(false);							
-			(new MainGUI()).setVisible(true);
+			loginCheck();
 		} else if(event.getSource() == btncancel) {
 			reset();
 		} else if(event.getSource() == btnsignup) {

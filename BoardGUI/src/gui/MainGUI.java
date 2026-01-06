@@ -17,6 +17,9 @@ public class MainGUI extends JFrame implements ActionListener{
 		JPanel panel = new JPanel();
 		setSize(800, 600);
 		
+		// UI, 버튼 등 추가
+		// 회원 정보, 로그아웃
+		
 		setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
 		add(panel);
 		setLocationRelativeTo(null);

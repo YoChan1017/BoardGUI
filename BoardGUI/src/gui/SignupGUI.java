@@ -4,6 +4,8 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
 import java.util.Calendar;
 
@@ -13,6 +15,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
@@ -21,7 +24,8 @@ import dbms.TableUsersDTO;
 
 public class SignupGUI extends JFrame implements ActionListener {
 
-	private JTextField userid, password, nickname, phone, email;
+	private JTextField userid, nickname, phone, email;
+	private JPasswordField password;
 	private JComboBox<String> yearCombo, monthCombo, dayCombo;
 	private JButton btnsignup, btncancel, btnlogin;
 	
@@ -33,7 +37,7 @@ public class SignupGUI extends JFrame implements ActionListener {
 		panel.setLayout(new GridLayout(0, 2, 10, 10));
 		
 		userid = new JTextField(15);
-		password = new JTextField(15);
+		password = new JPasswordField(15);	// UI 보안 추가
 		nickname = new JTextField(15);
 		phone = new JTextField(15);
 		email = new JTextField(15);
@@ -100,7 +104,7 @@ public class SignupGUI extends JFrame implements ActionListener {
 		
 		// 입력한 데이터 가져오기
 		String uid = userid.getText().trim();
-		String pw = password.getText().trim();
+		String pw = new String(password.getPassword()).trim();
 		String nick = nickname.getText().trim();
 		String ph = phone.getText().trim();
 		String mail = email.getText().trim();
@@ -138,8 +142,15 @@ public class SignupGUI extends JFrame implements ActionListener {
 			return;
 		}
 		
+		// 비밀번호 암호화 SHA-256
+		String hashedPw = hashPassword(pw);
+		if (hashedPw == null) {
+			JOptionPane.showMessageDialog(this, "비밀번호 설정 중 오류가 발생하였습니다.", "설정 오류", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		
 		// 데이터베이스 등록
-		TableUsersDTO newUser = new TableUsersDTO(uid, pw, nick, birthDate, ph, mail);
+		TableUsersDTO newUser = new TableUsersDTO(uid, hashedPw, nick, birthDate, ph, mail);
 		int result = dao.insertUser(newUser);
 		
 		// 회원 등록 처리
@@ -149,6 +160,23 @@ public class SignupGUI extends JFrame implements ActionListener {
 			(new LoginGUI()).setVisible(true);
 		} else {
 			JOptionPane.showMessageDialog(this, "회원가입에 실패하였습니다.", "등록 실패", JOptionPane.WARNING_MESSAGE);
+		}
+	}
+	
+	// 비밀번호 암호화 메서드
+	private String hashPassword(String password) {
+		try {
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			md.update(password.getBytes());
+			byte[] byteData = md.digest();
+			StringBuilder sb = new StringBuilder();
+			for (byte b : byteData) {
+				sb.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
+			}
+			return sb.toString();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 	
