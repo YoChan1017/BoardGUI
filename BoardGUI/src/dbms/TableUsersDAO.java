@@ -39,7 +39,7 @@ public class TableUsersDAO {
 		return result;
 	}
 	
-	// 회원 조회 (READ)
+	/*// 회원 조회 (READ)
 	public TableUsersDTO getUserByUsername() {
 		
 	}
@@ -64,11 +64,11 @@ public class TableUsersDAO {
 	// 회원 비활성화
 	public int deactivateUser( ) {
 		
-	}
+	}*/
 	
 	// ID 중복 확인
 	public boolean isIdDuplicate(String username) {
-		String sql = "SELECT 1 FROM users WHERE username = ?";
+		String sql = "SELECT 1 FROM users WHERE LOWER(username) = LOWER(?)";
 		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, username);
 			try (ResultSet rs = pstmt.executeQuery()) {
@@ -82,7 +82,7 @@ public class TableUsersDAO {
 	
 	// Nickname 중복 확인
 	public boolean isNicknameDuplicate(String nickname) {
-		String sql = "SELECT 1 FROM users WHERE nickname = ?";
+		String sql = "SELECT 1 FROM users WHERE LOWER(nickname) = LOWER(?)";
 		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, nickname);
 			try (ResultSet rs = pstmt.executeQuery()) {
@@ -96,7 +96,7 @@ public class TableUsersDAO {
 	
 	// Email 중복 확인
 	public boolean isEmailDuplicate(String email) {
-		String sql = "SELECT 1 FROM users WHERE email = ?";
+		String sql = "SELECT 1 FROM users WHERE LOWER(email) = LOWER(?)";
 		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, email);
 			try (ResultSet rs = pstmt.executeQuery()) {

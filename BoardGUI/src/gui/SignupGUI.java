@@ -4,15 +4,20 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Date;
 import java.util.Calendar;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+
+import dbms.TableUsersDAO;
+import dbms.TableUsersDTO;
 
 public class SignupGUI extends JFrame implements ActionListener {
 
@@ -91,6 +96,60 @@ public class SignupGUI extends JFrame implements ActionListener {
 		// 전화번호 숫자만 입력, 다른 글자 입력 시 알림('-'제외 입력)
 		// users table 등록
 		// 등록 시 등록완료 알림 추가
+		// 비밀번호 보안 추가
+		
+		// 입력한 데이터 가져오기
+		String uid = userid.getText().trim();
+		String pw = password.getText().trim();
+		String nick = nickname.getText().trim();
+		String ph = phone.getText().trim();
+		String mail = email.getText().trim();
+		// 생년월일 조합
+		String year = (String) yearCombo.getSelectedItem();
+		String month = (String) monthCombo.getSelectedItem();
+		String day = (String) dayCombo.getSelectedItem();
+		Date birthDate = Date.valueOf(year + "-" + month + "-" + day);
+		
+		// 유효성 검사
+		// 모든 입력칸이 비었을 경우
+		if (uid.isEmpty() || pw.isEmpty() || nick.isEmpty() || ph.isEmpty() || mail.isEmpty()) {
+			JOptionPane.showMessageDialog(this, "모든 정보를 입력해주세요.", "입력 오류", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		// 전화번호 숫자 외 다른 글자를 입력하였을 경우
+		if (!ph.matches("\\d+")) {
+			JOptionPane.showMessageDialog(this, "전화번호는 숫자만 입력해주세요. ('-' 제외)", "입력 오류", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		TableUsersDAO dao = new TableUsersDAO(); // 객체 생성
+		// 아이디 중복 확인
+		if (dao.isIdDuplicate(uid)) {
+			JOptionPane.showMessageDialog(this, "이미 존재하는 아이디입니다.", "중복 오류", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		// 닉네임 중복 확인
+		if (dao.isNicknameDuplicate(nick)) {
+			JOptionPane.showMessageDialog(this, "이미 존재하는 닉네임입니다.", "중복 오류", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		// 이메일 중복 확인
+		if (dao.isEmailDuplicate(mail)) {
+			JOptionPane.showMessageDialog(this, "이미 존재하는 이메일입니다.", "중복 오류", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		
+		// 데이터베이스 등록
+		TableUsersDTO newUser = new TableUsersDTO(uid, pw, nick, birthDate, ph, mail);
+		int result = dao.insertUser(newUser);
+		
+		// 회원 등록 처리
+		if (result > 0) {
+			JOptionPane.showMessageDialog(this, "회원가입에 성공하였습니다.", "등록 성공", JOptionPane.WARNING_MESSAGE);
+			setVisible(false);
+			(new LoginGUI()).setVisible(true);
+		} else {
+			JOptionPane.showMessageDialog(this, "회원가입에 실패하였습니다.", "등록 실패", JOptionPane.WARNING_MESSAGE);
+		}
 	}
 	
 	// 입력 취소 메서드
@@ -113,8 +172,6 @@ public class SignupGUI extends JFrame implements ActionListener {
 		if(event.getSource() == btnsignup) {
 			// 회원 등록 완료 후 로그인 화면으로 이동
 			addUser();
-			setVisible(false);
-			(new LoginGUI()).setVisible(true);
 		} else if(event.getSource() == btncancel) {
 			reset();
 		} else if(event.getSource() == btnlogin) {
