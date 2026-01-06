@@ -8,13 +8,19 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import dbms.TableUsersDAO;
+import dbms.TableUsersDTO;
+
 public class LoginGUI extends JFrame implements ActionListener {
 	
-	private JTextField userId, userPassword;
+	private JTextField userId;
+	private JPasswordField userPassword;
 	private JButton btnlogin, btncancel, btnsignup, btnexit; 
 	
 	public LoginGUI() {
@@ -25,7 +31,7 @@ public class LoginGUI extends JFrame implements ActionListener {
 		panel.setLayout(new GridLayout(0, 2, 10, 10));	// 행(0=자동), 열, 수평간격, 수직간격
 		
 		userId = new JTextField(15);
-		userPassword = new JTextField(15);
+		userPassword = new JPasswordField(15);
 		
 		btnlogin = new JButton("로그인");
 		btnlogin.addActionListener(this);
@@ -53,10 +59,26 @@ public class LoginGUI extends JFrame implements ActionListener {
 	}
 	
 	private void loginCheck() {
-		// 로그인 정보 조회(확인) 후 세션? 저장 추가
-		
-		setVisible(false);							
-		(new MainGUI()).setVisible(true);
+		String uid = userId.getText().trim();
+		String pw = new String(userPassword.getPassword()).trim();
+		// 아이디와 비밀번호 미입력 시
+		if(uid.isEmpty() || pw.isEmpty()) {
+			JOptionPane.showMessageDialog(this, "아이디와 비밀번호를 입력해주세요.", "로그인 오류", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		// 로그인 인증 시도
+		TableUsersDAO dao = new TableUsersDAO();
+		boolean isLoginSuccess = dao.login(uid, pw);
+		if (isLoginSuccess) {
+			TableUsersDTO userInfo = dao.getUserByUsername(uid);
+			String nickname = (userInfo != null) ? userInfo.getNickname() : uid;
+			JOptionPane.showMessageDialog(this, nickname + "님 환영합니다.", "로그인 성공", JOptionPane.INFORMATION_MESSAGE);
+			// 세션 유지 추가 - 로그인 처리
+			setVisible(false);							
+			(new MainGUI()).setVisible(true);
+		} else {
+			JOptionPane.showMessageDialog(this, "아이디 또는 비밀번호가 일치하지 않습니다.", "로그인 실패", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 	
 	// 입력 취소 메서드

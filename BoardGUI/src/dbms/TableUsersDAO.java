@@ -1,5 +1,7 @@
 package dbms;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -39,9 +41,32 @@ public class TableUsersDAO {
 		return result;
 	}
 	
-	/*// 회원 조회 (READ)
-	public TableUsersDTO getUserByUsername() {
-		
+	// 회원 조회 (READ)
+	public TableUsersDTO getUserByUsername(String username) {
+		TableUsersDTO user = null;
+		String sql = "SELECT * FROM users WHERE username = ?";
+		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, username);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next()) {
+					user = new TableUsersDTO(
+							rs.getInt("user_id"),
+							rs.getString("username"),
+							rs.getString("password"),
+							rs.getString("nickname"),
+							rs.getDate("birth_date"),
+							rs.getString("phone"),
+							rs.getString("email"),
+							rs.getString("role"),
+							rs.getBoolean("is_active"),
+							rs.getTimestamp("created_at")
+							);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return user;
 	}
 	
 	// 회원 수정 (UPDATE)
@@ -57,14 +82,30 @@ public class TableUsersDAO {
 	
 	
 	// 로그인 인증
-	public boolean login() {
-		
+	public boolean login(String username, String inputPassword) {
+		boolean isValid = false;
+		String sql = "SELECT password FROM users WHERE username = ? AND is_active = TRUE";
+		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, username);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next()) {
+					String dbHashedPassword = rs.getString("password");
+					String inputHashedPassword = hashPassword(inputPassword);
+					if (inputHashedPassword != null && inputHashedPassword.equals(dbHashedPassword)) {
+						isValid = true;
+					}
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return isValid;
 	}
 	
 	// 회원 비활성화
 	public int deactivateUser( ) {
 		
-	}*/
+	}
 	
 	// ID 중복 확인
 	public boolean isIdDuplicate(String username) {
@@ -106,6 +147,23 @@ public class TableUsersDAO {
 			e.printStackTrace();
 		}
 		return false;
+	}
+	
+	// 비밀번호 암호화 메서드
+	private String hashPassword(String password) {
+		try {
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			md.update(password.getBytes());
+			byte[] byteData = md.digest();
+			StringBuilder sb = new StringBuilder();
+			for (byte b : byteData) {
+				sb.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
+			}
+			return sb.toString();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	// 필요 시 추가
