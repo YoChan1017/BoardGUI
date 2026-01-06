@@ -111,6 +111,7 @@ public class SignupGUI extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		if(event.getSource() == btnsignup) {
+			// 회원 등록 완료 후 로그인 화면으로 이동
 			addUser();
 			setVisible(false);
 			(new LoginGUI()).setVisible(true);
