@@ -16,6 +16,7 @@ import javax.swing.SwingConstants;
 
 import dbms.TableUsersDAO;
 import dbms.TableUsersDTO;
+import session.UserSession;
 
 public class LoginGUI extends JFrame implements ActionListener {
 	
@@ -63,7 +64,7 @@ public class LoginGUI extends JFrame implements ActionListener {
 		String pw = new String(userPassword.getPassword()).trim();
 		// 아이디와 비밀번호 미입력 시
 		if(uid.isEmpty() || pw.isEmpty()) {
-			JOptionPane.showMessageDialog(this, "아이디와 비밀번호를 입력해주세요.", "로그인 오류", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(this, "아이디와 비밀번호를 입력해주세요.", "입력 오류", JOptionPane.WARNING_MESSAGE);
 			return;
 		}
 		// 로그인 인증 시도
@@ -71,11 +72,15 @@ public class LoginGUI extends JFrame implements ActionListener {
 		boolean isLoginSuccess = dao.login(uid, pw);
 		if (isLoginSuccess) {
 			TableUsersDTO userInfo = dao.getUserByUsername(uid);
-			String nickname = (userInfo != null) ? userInfo.getNickname() : uid;
-			JOptionPane.showMessageDialog(this, nickname + "님 환영합니다.", "로그인 성공", JOptionPane.INFORMATION_MESSAGE);
-			// 세션 유지 추가 - 로그인 처리
-			setVisible(false);							
-			(new MainGUI()).setVisible(true);
+			if (userInfo != null ) {
+				UserSession.getInstance().login(userInfo); // 세션에 현재 로그인 정보 저장
+				String nickname = (userInfo != null) ? userInfo.getNickname() : uid;
+				JOptionPane.showMessageDialog(this, nickname + "님 환영합니다.", "로그인 성공", JOptionPane.INFORMATION_MESSAGE);
+				setVisible(false);							
+				(new MainGUI()).setVisible(true);
+			} else {
+				JOptionPane.showMessageDialog(this, "회원정보를 불러올 수 없습니다.", "로그인 오류", JOptionPane.ERROR_MESSAGE);
+			}
 		} else {
 			JOptionPane.showMessageDialog(this, "아이디 또는 비밀번호가 일치하지 않습니다.", "로그인 실패", JOptionPane.ERROR_MESSAGE);
 		}
@@ -95,7 +100,7 @@ public class LoginGUI extends JFrame implements ActionListener {
 			reset();
 		} else if(event.getSource() == btnsignup) {
 			setVisible(false);							// 현재 화면 숨기고
-			(new SignupGUI()).setVisible(true);			// SinupGUI 화면 표시
+			(new SignupGUI()).setVisible(true);			// SinupGUI(회원가입) 화면 표시
 		} else if(event.getSource() == btnexit) {
 			System.exit(0);
 		}

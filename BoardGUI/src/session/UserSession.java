@@ -17,7 +17,7 @@ public class UserSession {
 	}
 	
 	// 로그인 처리
-	public void login() {
+	public void login(TableUsersDTO user) {
 		this.user = user;
 	}
 	// 로그아웃 처리

@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class DetailsGUI extends JFrame implements ActionListener {
+	// 필드, 생성자, 메서드
 	// 유저 정보 확인/수정 등 
 	
 	public DetailsGUI() {
