@@ -27,7 +27,7 @@ public class SignupGUI extends JFrame implements ActionListener {
 	private JTextField userid, nickname, phone, email;
 	private JPasswordField password;
 	private JComboBox<String> yearCombo, monthCombo, dayCombo;
-	private JButton btnsignup, btncancel, btnlogin;
+	private JButton btnsignup, btncancel, btnlogin, btnexit;
 	
 	public SignupGUI() {
 		setTitle("회원가입");
@@ -83,10 +83,13 @@ public class SignupGUI extends JFrame implements ActionListener {
 		btncancel.addActionListener(this);
 		btnlogin = new JButton("돌아가기");
 		btnlogin.addActionListener(this);
+		btnexit = new JButton("종료");
+		btnexit.addActionListener(this);
 		
 		panel.add(btnsignup);
 		panel.add(btncancel);
 		panel.add(btnlogin);
+		panel.add(btnexit);
 		
 		setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
 		add(panel);
@@ -205,6 +208,8 @@ public class SignupGUI extends JFrame implements ActionListener {
 		} else if(event.getSource() == btnlogin) {
 			setVisible(false);
 			(new LoginGUI()).setVisible(true);
+		} else if(event.getSource() == btnexit) {
+			System.exit(0);
 		}
 	}
 

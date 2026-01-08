@@ -43,7 +43,8 @@ public class MainGUI extends JFrame implements ActionListener{
 		// 현재 GUI화면 진입 시 로그인 체크 여부
 		if (!UserSession.getInstance().isLoggedIn()) {
 			// 현재 생성자를 종료 후 로그인 화면으로 이동
-			JOptionPane.showMessageDialog(this, "로그인을 먼저 해주세요.", "접근 제한", JOptionPane.WARNING_MESSAGE);				
+			JOptionPane.showMessageDialog(this, "로그인을 먼저 해주세요.", "접근 제한", JOptionPane.WARNING_MESSAGE);	
+			dispose();
 			(new LoginGUI()).setVisible(true);
 			return;
 		}
@@ -54,11 +55,7 @@ public class MainGUI extends JFrame implements ActionListener{
 		if(event.getSource() == btnmain) {
 			// 로그인 세션 보유한채로 새로고침
 			setVisible(false);
-			// 세션 끊겼을 경우 대비
-			MainGUI mainGui = new MainGUI();
-			if (mainGui.isDisplayable()) {
-				mainGui.setVisible(true);
-			}			
+			(new MainGUI()).setVisible(true);		
 			
 		} else if(event.getSource() == btnuser) {
 			// 로그인 세션 보유한채로 내 정보화면으로 이동
