@@ -29,7 +29,7 @@ public class DetailsGUI extends JFrame implements ActionListener {
 	private JButton btnmain, btnmypost, btnlogout, btnexit, btnuseredit, btnpwedit;
 	
 	public DetailsGUI() {
-		setTitle("로그인 정보");
+		setTitle("내 정보");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);		
 		setLayout(new BorderLayout());
 		setSize(800, 600);
@@ -50,7 +50,7 @@ public class DetailsGUI extends JFrame implements ActionListener {
 		centerPanel.setLayout(new GridLayout(5, 2, 10, 10));
 		centerPanel.setBorder(new EmptyBorder(50, 100, 50, 100));
 		
-		// 데이터 표시 공간(임시로 지정)
+		// 데이터 표시 공간
 		Nickname = createReadOnlyField();
 		Birth = createReadOnlyField();
 		Phone = createReadOnlyField();
@@ -61,6 +61,7 @@ public class DetailsGUI extends JFrame implements ActionListener {
 		loadUserData();
 			
 		// UI 추가
+		// 상단
 		btnmain = new JButton("HOME");
 		btnmain.addActionListener(this);
 		btnmypost = new JButton("작성글 보기");
@@ -70,6 +71,7 @@ public class DetailsGUI extends JFrame implements ActionListener {
 		btnexit = new JButton("종료");
 		btnexit.addActionListener(this);
 		
+		// 중앙
 		centerPanel.add(new JLabel("닉네임", SwingConstants.LEFT));
 		centerPanel.add(Nickname);
 		centerPanel.add(new JLabel("생년월일", SwingConstants.LEFT));
@@ -81,6 +83,7 @@ public class DetailsGUI extends JFrame implements ActionListener {
 		centerPanel.add(new JLabel("가입날짜", SwingConstants.LEFT));
 		centerPanel.add(Createat);
 		
+		// 하단
 		btnuseredit = new JButton("회원정보 수정");
 		btnuseredit.addActionListener(this);
 		btnpwedit = new JButton("비밀번호 변경");
@@ -103,9 +106,9 @@ public class DetailsGUI extends JFrame implements ActionListener {
 	// 텍스트 필드 초기화 및 수정불가
 	private JTextField createReadOnlyField() {
 		JTextField data = new JTextField();
-		data.setEditable(false);
-		data.setBackground(Color.white);
-		data.setHorizontalAlignment(JTextField.CENTER);
+		data.setEditable(false);			// 수정 불가
+		data.setBackground(Color.white);	// 배경 흰색
+		data.setHorizontalAlignment(JTextField.CENTER);	// 중앙 표시
 		return data;
 	}
 	
@@ -154,10 +157,13 @@ public class DetailsGUI extends JFrame implements ActionListener {
 			(new LoginGUI()).setVisible(true);
 			
 		} else if(event.getSource() == btnexit) {
+			// 프로그램 종료
 			System.exit(0);
 			
 		} else if(event.getSource() == btnuseredit) {
 			// 로그인 중인 회원 정보 수정
+			setVisible(false);
+			(new DetailsEditGUI()).setVisible(true);
 			
 		} else if(event.getSource() == btnpwedit) {
 			// " 비밀번호 수정
