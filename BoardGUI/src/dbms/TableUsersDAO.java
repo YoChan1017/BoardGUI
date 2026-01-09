@@ -70,8 +70,21 @@ public class TableUsersDAO {
 	}
 	
 	// 회원 수정 (UPDATE)
-	public int updateUser( ) {
-		
+	public int updateUser(TableUsersDTO user) {
+		int result = 0;
+		String sql = "UPDATE users SET password = ?, nickname = ?, phone = ?, email = ? WHERE username = ?";
+		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, user.getPassword());
+			pstmt.setString(2, user.getNickname());
+			pstmt.setString(3, user.getPhone());
+			pstmt.setString(4, user.getEmail());
+			pstmt.setString(5, user.getUsername());
+			result = pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("회원정보 수정 실패 : " + e.getMessage());
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 	// 회원 탈퇴 (DELETE)
