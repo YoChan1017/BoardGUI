@@ -166,7 +166,9 @@ public class DetailsGUI extends JFrame implements ActionListener {
 			(new DetailsEditGUI()).setVisible(true);
 			
 		} else if(event.getSource() == btnpwedit) {
-			// " 비밀번호 수정
+			// 비밀번호 수정
+			setVisible(false);
+			(new DetailsPwEditGUI()).setVisible(true);
 		}
 	}
 	
