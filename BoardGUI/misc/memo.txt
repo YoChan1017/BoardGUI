@@ -34,7 +34,39 @@ Table_users
 > 계정 활성 여부		is_active 		기본값 true(활성화)
 > 가입일				created_at		time stamp, 생성시간 기준
 
+Table_boards
+> 고유 id
+> 게시판 이름
+> 게시판 타입
+> 읽기 권한
+> 쓰기 권한
+> 게시판 활성여부
 
+Table_posts
+> 고유 id
+> 어느 게시판글인지
+> 누가 작성하였는지
+> 제목
+> 내용
+> 조회수
+> 작성일
+> 수정일
+
+Table_comments
+> 고유 id
+> 어느글의 댓글인지
+> 누가 작성하였는지
+> 내용
+> 작성일
+
+Table_attachments
+> 고유 id
+> 어느 글의 파일인지
+> 유저가 올린 파일명
+> 서버에 저장된 파일명
+> 저장 경로
+> 파일 크기
+> 업로드 시간
 
 2. GUI
 > 로그인

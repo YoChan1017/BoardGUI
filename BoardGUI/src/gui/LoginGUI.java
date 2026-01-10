@@ -82,7 +82,13 @@ public class LoginGUI extends JFrame implements ActionListener {
 				JOptionPane.showMessageDialog(this, "회원정보를 불러올 수 없습니다.", "로그인 오류", JOptionPane.ERROR_MESSAGE);
 			}
 		} else {
-			JOptionPane.showMessageDialog(this, "아이디 또는 비밀번호가 일치하지 않습니다.", "로그인 실패", JOptionPane.ERROR_MESSAGE);
+			// 로그인 실패 시 원인 확인 (비활성화(탈퇴) or 입력이 틀렸을경우(아예 없을수도 있음))
+			TableUsersDTO userToCheck = dao.getUserByUsername(uid);
+			if (userToCheck != null && !userToCheck.isActive()) {
+				JOptionPane.showMessageDialog(this, "탈퇴중이거나 비활성화된 계정입니다.\n관리자에게 문의해주세요", "로그인 실패", JOptionPane.ERROR_MESSAGE);
+			} else {
+				JOptionPane.showMessageDialog(this, "아이디 또는 비밀번호가 일치하지 않습니다.", "로그인 실패", JOptionPane.ERROR_MESSAGE);
+			}
 		}
 	}
 	

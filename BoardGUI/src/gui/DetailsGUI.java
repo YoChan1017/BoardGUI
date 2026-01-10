@@ -10,14 +10,17 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import dbms.TableUsersDAO;
 import dbms.TableUsersDTO;
 import session.UserSession;
 
@@ -156,7 +159,48 @@ public class DetailsGUI extends JFrame implements ActionListener {
 		}
 		
 		// 2차 알림 - 경고메세지(체크박스 + 비밀번호 입력)
+		JPanel panel = new JPanel(new GridLayout(4, 1, 5, 5));
+		JLabel warnLabel = new JLabel("<html><font color='red'><b>[경고] 탈퇴 후에는 계정이 비활성화됩니다.</b><font><br>복구를 원하시면 3일내로 관리자한테 문의바랍니다.</html>");
+		JCheckBox confirmCheck = new JCheckBox("위 안내사항을 모두 확인하였으며, 탈퇴에 동의합니다.");
+		JPasswordField pwField = new JPasswordField();
 		
+		panel.add(warnLabel);
+		panel.add(confirmCheck);
+		panel.add(new JLabel("비밀번호 입력 : "));
+		panel.add(pwField);
+		
+		int result = JOptionPane.showConfirmDialog(this, panel, "회원 탈퇴 최종 확인", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		if (result == JOptionPane.OK_OPTION) {
+			// 유효성 검사 - 체크박스 및 비밀번호 입력 빈칸일시, 비밀번호 일치 확인
+			if (!confirmCheck.isSelected()) {
+				JOptionPane.showMessageDialog(this, "탈퇴 동의에 체크해주세요.", "확인 오류", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			String inputPw = new String(pwField.getPassword()).trim();
+			if (inputPw.isEmpty()) {
+				JOptionPane.showMessageDialog(this, "비밀번호를 입력해주세요.", "입력 오류", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			TableUsersDTO user = UserSession.getInstance().getUser();
+			String hashedInputPw = hashPassword(inputPw);
+			if (!hashedInputPw.equals(user.getPassword())) {
+				JOptionPane.showMessageDialog(this, "비밀번호가 일치하지 않습니다.", "인증 오류", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			
+			// 탈퇴 처리
+			TableUsersDAO dao = new TableUsersDAO();
+			int deleteResult = dao.deactivateUser(user.getUsername());
+			if (deleteResult > 0) {
+				JOptionPane.showMessageDialog(this, "회원 탈퇴 처리가 완료되었습니다.\n이용해 주셔서 감사합니다.", "탈퇴 성공", JOptionPane.INFORMATION_MESSAGE);
+				// 로그아웃 처리 후 로그인 화면으로 이동
+				UserSession.getInstance().logout();
+				setVisible(false);
+				(new LoginGUI()).setVisible(true);
+			} else {
+				JOptionPane.showMessageDialog(this, "회원 탈퇴 처리에 실패하였습니다.\n관리자에게 문의해주세요.", "탈퇴 오류", JOptionPane.ERROR_MESSAGE);
+			}
+		}
 	}
 	
 	// 비밀번호 암호화 메서드
