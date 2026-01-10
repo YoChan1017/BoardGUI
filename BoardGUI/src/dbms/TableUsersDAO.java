@@ -88,8 +88,17 @@ public class TableUsersDAO {
 	}
 	
 	// 회원 탈퇴 (DELETE)
-	public int deleteUser() {
-		
+	public int deleteUser(String username) {
+		int result = 0;
+		String sql = "DELETE FROM users WHERE username = ?";
+		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, username);
+			result = pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("회원정보 삭제 실패 : " + e.getMessage());
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 	
@@ -116,8 +125,16 @@ public class TableUsersDAO {
 	}
 	
 	// 회원 비활성화
-	public int deactivateUser( ) {
-		
+	public int deactivateUser(String username) {
+		int result = 0;
+		String sql = "UPDATE users SET is_active = FALSE WHERE username = ?";
+		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, username);
+			result = pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 	// ID 중복 확인

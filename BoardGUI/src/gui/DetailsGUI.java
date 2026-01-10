@@ -6,6 +6,8 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -22,11 +24,11 @@ import session.UserSession;
 public class DetailsGUI extends JFrame implements ActionListener {
 	// 필드, 생성자, 메서드 생성
 	// 유저 정보 확인 > nickname, birth_data, phone, email, created_at 표시
-	// 버튼 > 메인화면, 작성글, 로그아웃, 종료, 회원정보 수정, 비밀번호 변경
+	// 버튼 > 메인화면, 작성글, 로그아웃, 종료, 회원정보 수정, 비밀번호 변경, 회원탈퇴
 	// 게시판 기능 추가 후 내가 작성한 글 보기 페이지 연결
 	
 	private JTextField Nickname, Birth, Phone, Email, Createat; // 데이터 넣을 때 명칭 변경 (닉네임, 생년월일, 전화번호, 이메일, 가입날짜)
-	private JButton btnmain, btnmypost, btnlogout, btnexit, btnuseredit, btnpwedit;
+	private JButton btnmain, btnmypost, btnlogout, btnexit, btnuseredit, btnpwedit, btndeleteuser;
 	
 	public DetailsGUI() {
 		setTitle("내 정보");
@@ -88,6 +90,8 @@ public class DetailsGUI extends JFrame implements ActionListener {
 		btnuseredit.addActionListener(this);
 		btnpwedit = new JButton("비밀번호 변경");
 		btnpwedit.addActionListener(this);
+		btndeleteuser = new JButton("회원 탈퇴");
+		btndeleteuser.addActionListener(this);
 		
 		topPanel.add(btnmain);
 		topPanel.add(btnmypost);
@@ -96,6 +100,7 @@ public class DetailsGUI extends JFrame implements ActionListener {
 		
 		bottomPanel.add(btnuseredit);
 		bottomPanel.add(btnpwedit);
+		bottomPanel.add(btndeleteuser);
 		
 		add(topPanel, BorderLayout.NORTH);
 		add(centerPanel, BorderLayout.CENTER);
@@ -137,6 +142,40 @@ public class DetailsGUI extends JFrame implements ActionListener {
 		}
 	}
 	
+	// 회원 탈퇴를 처리하는 메서드
+	private void deleteUserData() {
+		// 현재 회원 탈퇴(비활성화) 처리 > 나중에 관리자가 직접 삭제하거나 일정기간 뒤에 삭제
+		// "YES_NO_OPTION"알림으로 선택
+		// 확인 눌렀을시 안내 메시지와 함께 비밀번호 재입력 및 안내메시지를 읽었다는 확인에 체크
+		// 완료하였을시 탈퇴 처리 후 LoginGUI로 이동
+		
+		// 1차 알림 - 안내메세지(확인/취소)
+		int choice = JOptionPane.showConfirmDialog(this, "정말로 탈퇴하시겠습니까?\n탈퇴 시 모든 정보가 삭제됩니다.", "회원 탈퇴 확인", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+		if (choice != JOptionPane.YES_OPTION) {
+			return;
+		}
+		
+		// 2차 알림 - 경고메세지(체크박스 + 비밀번호 입력)
+		
+	}
+	
+	// 비밀번호 암호화 메서드
+	private String hashPassword(String password) {
+		try {
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			md.update(password.getBytes());
+			byte[] byteData = md.digest();
+			StringBuilder sb = new StringBuilder();
+			for (byte b : byteData) {
+				sb.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
+			}
+			return sb.toString();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 	// 버튼 이벤트 작성
 	@Override
 	public void actionPerformed(ActionEvent event) {
@@ -169,6 +208,9 @@ public class DetailsGUI extends JFrame implements ActionListener {
 			// 비밀번호 수정
 			setVisible(false);
 			(new DetailsPwEditGUI()).setVisible(true);
+		} else if(event.getSource() == btndeleteuser) {
+			// 회원탈퇴
+			deleteUserData();
 		}
 	}
 	
