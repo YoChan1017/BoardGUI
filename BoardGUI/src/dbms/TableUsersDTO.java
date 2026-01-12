@@ -16,7 +16,7 @@ public class TableUsersDTO {
 	private boolean isActive;
 	private Timestamp createdAt;
 	
-	// 기본
+	// 기본 생성자
 	public TableUsersDTO() {}
 	
 	// 회원가입용
