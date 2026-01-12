@@ -38,7 +38,7 @@ Table_boards
 > 고유 id			board_id
 > 게시판 코드			code			(30) 중복불가, not null
 > 게시판 이름			name			(50) not null
-> 게시판 타입			type			NOTICE(공지사항), NORMAL(기본값), QNA(건의사항)
+> 게시판 타입			type			NOTICE(공지사항), NORMAL(기본값), QNA(건의사항) 등
 > 읽기 권한			read_role		int default 1, 권한(admin(최고 관리자, 9), manager(부운영자, 5), user(기본, 1))에 따라 사용
 > 쓰기 권한			write_role		int default 1, 권한(admin(최고 관리자, 9), manager(부운영자, 5), user(기본, 1))에 따라 사용
 > 게시판 활성여부		is_active		기본값 true(활성화)
@@ -48,20 +48,20 @@ Table_posts
 > 어느 게시판글인지		board_id		(FK)
 > 누가 작성하였는지		user_id			(FK)
 > 제목				title			(200), not null
-> 내용				content			not null
+> 내용				content			mediumtext, not null
 > 조회수				view_count		int default 0
 > 작성일				created_at		timestamp
 > 수정일				updated_at		timestamp
 > ------ 위에까지는 공통사항 -------
-> 비밀 글 여부
-> 상단 고정 여부
-> 처리 상태
+> 상단 고정 여부		is_notice		default false
+> 비밀 글 여부			is_secret		default false
+> 처리 상태			status			(20) default waiting
 
 Table_comments
 > 고유 id			comment_id	
 > 어느글의 댓글인지		post_id			(FK), not null
 > 누가 작성하였는지		user_id			(FK), not null
-> 공개 여부			
+> 공개 여부			is_secret		default false
 > 삭제 여부			is_deleted		boolean default false > 화면 표시용
 > 내용				content			(1000), not null
 > 작성일				created_at		timestamp
@@ -73,7 +73,11 @@ Table_attachments
 > 서버에 저장된 파일명	save_name		(255), not null
 > 저장 경로			save_path		(255), not null
 > 파일 크기			file_size		not null
+> 확장자명			ext				(10)
 > 업로드 시간			created_at		timestamp
+
+
+
 
 2. GUI
 > 로그인
@@ -123,4 +127,6 @@ Table_attachments
     return;
  }
 
- 
+5. dbms
+> 
+# 파일 분류(정리)
