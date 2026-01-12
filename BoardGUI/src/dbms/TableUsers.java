@@ -23,16 +23,15 @@ public class TableUsers {
 				+ "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"		// 생성날짜, 유저 데이터 생성 시 현재 시간 자동 입력
 				+ ")";
 		// DBcon 클래스 호출로 SQL server connection
-		try (Connection conn = DBcon.getConnection();
-				PreparedStatement pstmt = conn.prepareStatement(sql)) {
+		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			// 쿼리 실행
 			pstmt.executeUpdate();
-			System.out.println("'users' Table Created Query Complete");
+			System.out.println("'users' Table Created or Already Exists.");
 			// 테이블 존재 확인
 			if (checkTableExists(conn, "users")) {
-				System.out.println("[SUCCESS]");
+				System.out.println("[SUCCESS] users 테이블 확인이 완료되었습니다.");
 			} else {
-				System.out.println("[ERROR]");
+				System.out.println("[ERROR] users 테이블이 확인되지 않습니다.");
 			}
 		} catch (SQLException e) { // 생성 오류 시
 			System.out.println("Created Table ERROR : " + e.getMessage());
