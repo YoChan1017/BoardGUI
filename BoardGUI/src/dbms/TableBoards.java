@@ -49,16 +49,31 @@ public class TableBoards {
 		
 		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			// 공지사항(NOTICE) > 쓰기 권한은 관리자만 가능
-			
+			pstmt.setString(1, "notice");
+			pstmt.setString(2, "공지사항");
+			pstmt.setString(3, "NOTICE");
+			pstmt.setInt(4, 1);
+			pstmt.setInt(5, 9);
+			pstmt.addBatch();
 			
 			// 자유게시판(NORMAL) > 누구나 읽고 쓰기 가능
-			
+			pstmt.setString(1, "normal");
+			pstmt.setString(2, "자유게시판");
+			pstmt.setString(3, "NORMAL");
+			pstmt.setInt(4, 1);
+			pstmt.setInt(5, 1);
+			pstmt.addBatch();
 			
 			// 건의사항(QNA) > 누구나 읽고 쓰기 가능
-			
+			pstmt.setString(1, "qna");
+			pstmt.setString(2, "건의사항");
+			pstmt.setString(3, "QNA");
+			pstmt.setInt(4, 1);
+			pstmt.setInt(5, 1);
+			pstmt.addBatch();
 			
 			int[] result = pstmt.executeBatch();
-			System.out.println("기본 게시판 데이터 적용 완료. (적용된 데이터 수 : " + result.length);
+			System.out.println("기본 게시판 데이터 적용 완료. (적용된 데이터 수 : " + result.length + ")");
 		} catch (SQLException e) {
 			System.err.println("기본 데이터 삽입 실패 : " + e.getMessage());
 			e.printStackTrace();
@@ -83,6 +98,7 @@ public class TableBoards {
 		}
 	}
 
+	// 실행
 	public static void main(String[] args) {
 		TableBoards setup = new TableBoards();
 		setup.createBoardsTable();
