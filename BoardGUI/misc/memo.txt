@@ -127,6 +127,16 @@ Table_attachments
     return;
  }
 
+
+
 5. dbms
 > 
 # 파일 분류(정리)
+
+
+
+6. main
+프로그램 시작점
+테이블 생성 순서
+users > boards > posts > comments > attachments
+테이블 생성 후 UI 진입
