@@ -14,7 +14,15 @@ public class TableComments {
 	public void createCommentsTalbe() {
 		// 테이블 생성 SQL
 		String sql = "CREATE TABLE IF NOT EXISTS comments ("
-				
+				+ "comment_id INT AUTO_INCREMENT PRIMARY KEY, "
+				+ "post_id INT NOT NULL, "
+				+ "user_id INT NOT NULL, "
+				+ "content VARCHAR(1000) NOT NULL, "
+				+ "is_secret BOOLEAN DEFAULT FALSE, "
+				+ "is_deleted BOOLEAN DEFAULT FALSE, "
+				+ "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+				+ "FOREIGN KEY (post_id) REFERENCES posts(post_id) ON DELETE CASCADE, "
+				+ "FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE"
 				+ ")";
 		
 		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
