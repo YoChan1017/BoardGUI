@@ -139,4 +139,5 @@ Table_attachments
 프로그램 시작점
 테이블 생성 순서
 users > boards > posts > comments > attachments
+(TableUsers > TableBoards > TablePosts > TableComments > TableAttachments)
 테이블 생성 후 UI 진입
