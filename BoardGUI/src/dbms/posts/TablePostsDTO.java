@@ -1,4 +1,4 @@
-package dbms;
+package dbms.posts;
 
 import java.sql.Timestamp;
 

@@ -1,4 +1,4 @@
-package dbms;
+package dbms.users;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import dbms.DBcon;
 
 // TableUsersDTO, DBcon 메서드 사용
 // > import dbms.DBcon;

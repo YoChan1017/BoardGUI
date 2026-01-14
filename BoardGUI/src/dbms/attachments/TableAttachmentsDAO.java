@@ -1,4 +1,4 @@
-package dbms;
+package dbms.attachments;
 
 public class TableAttachmentsDAO {
 

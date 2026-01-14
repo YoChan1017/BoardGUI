@@ -1,4 +1,4 @@
-package dbms;
+package dbms.users;
 
 // Enum(Enumeration) 정해진 값들 중에서만 선택하도록 강제하는 목록
 public enum TableUsersRole {

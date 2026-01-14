@@ -14,8 +14,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import dbms.TableUsersDAO;
-import dbms.TableUsersDTO;
+import dbms.users.TableUsersDAO;
+import dbms.users.TableUsersDTO;
 import session.UserSession;
 
 public class LoginGUI extends JFrame implements ActionListener {

@@ -1,4 +1,4 @@
-package dbms;
+package dbms.boards;
 
 public class TableBoardsDTO {
 	

@@ -1,4 +1,4 @@
-package dbms;
+package dbms.comments;
 
 public class TableCommentsDAO {
 

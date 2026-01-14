@@ -1,4 +1,4 @@
-package dbms;
+package dbms.boards;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.mariadb.jdbc.client.result.Result;
+
+import dbms.DBcon;
 
 public class TableBoards {
 	

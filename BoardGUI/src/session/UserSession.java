@@ -1,6 +1,6 @@
 package session;
 
-import dbms.TableUsersDTO;
+import dbms.users.TableUsersDTO;
 
 public class UserSession {
 	

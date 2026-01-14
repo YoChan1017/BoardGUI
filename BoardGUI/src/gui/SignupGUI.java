@@ -19,8 +19,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import dbms.TableUsersDAO;
-import dbms.TableUsersDTO;
+import dbms.users.TableUsersDAO;
+import dbms.users.TableUsersDTO;
 
 public class SignupGUI extends JFrame implements ActionListener {
 
