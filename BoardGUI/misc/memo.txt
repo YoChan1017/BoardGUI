@@ -2,9 +2,10 @@
 # mariadb-java-client-3.5.7.jar > ClassPath 추가
 
 1. DBMS
-Driver 연결 및 해제
-Database 확인 > 없을 시 생성 쿼리문 작성
-Table 확인 > 없을 시 생성 쿼리문 작성
+> Driver 연결 및 해제
+> Database 확인 > 없을 시 생성 쿼리문 작성
+> Table 확인 > 없을 시 생성 쿼리문 작성
+> boards_table 생성 시 기본 정보 작성
 
 각 테이블 DAO/DTO 작성 (대규모 프로젝트가 아니므로 DAO와 DTO만 작성함)
 > DAO : DB 접근 (CRUD Query 실행)
@@ -129,13 +130,7 @@ Table_attachments
 
 
 
-5. dbms
-> 
-# 파일 분류(정리)
-
-
-
-6. main
+5. main
 프로그램 시작점
 테이블 생성 순서
 users > boards > posts > comments > attachments
