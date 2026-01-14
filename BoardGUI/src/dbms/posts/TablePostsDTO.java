@@ -52,34 +52,34 @@ public class TablePostsDTO {
 	public void setPostId(int postId) { this.postId = postId; }
 	
 	public int getBoardId() { return boardId; }
-	public void getBoardId(int boardId) { this.boardId = boardId; }
+	public void setBoardId(int boardId) { this.boardId = boardId; }
 	
 	public int getUserId() { return userId; }
-	public void getUserId(int userId) { this.userId = userId; }
+	public void setUserId(int userId) { this.userId = userId; }
 	
 	public String getTitle() { return title; }
-	public void getTitle(String title) { this.title = title; }
+	public void setTitle(String title) { this.title = title; }
 	
 	public String getContent() { return content; }
-	public void getContent(String content) { this.content = content; }
+	public void setContent(String content) { this.content = content; }
 	
 	public int getViewCount() { return viewCount; }
-	public void getViewCount(int viewCount) { this.viewCount = viewCount; }
+	public void setViewCount(int viewCount) { this.viewCount = viewCount; }
 	
 	public Timestamp getCreatedAt() { return createdAt; }
-	public void getCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+	public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
 	
 	public Timestamp getUpdatedAt() { return updatedAt; }
-	public void getUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
+	public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
 	
 	public boolean getisNotice() { return isNotice; }
-	public void getisNotice(boolean isNotice) { this.isNotice = isNotice; }
+	public void setisNotice(boolean isNotice) { this.isNotice = isNotice; }
 	
 	public boolean getisSecret() { return isSecret; }
-	public void getisSecret(boolean isSecret) { this.isSecret = isSecret; }
+	public void setisSecret(boolean isSecret) { this.isSecret = isSecret; }
 	
 	public String getStatus() { return status; }
-	public void getStatus(String status) { this.status = status; }
+	public void setStatus(String status) { this.status = status; }
 	
 	@Override
 	public String toString() {
