@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -22,6 +23,21 @@ public class MainGUI extends JFrame implements ActionListener{
 		JPanel panel = new JPanel();
 		setSize(800, 600);
 		
+		// 현재 GUI화면 진입 시 로그인 체크 여부
+		if (!UserSession.getInstance().isLoggedIn()) {
+			// 현재 생성자를 종료 후 로그인 화면으로 이동
+			JOptionPane.showMessageDialog(this, "로그인을 먼저 해주세요.", "접근 제한", JOptionPane.WARNING_MESSAGE);	
+			dispose();
+			(new LoginGUI()).setVisible(true);
+			return;
+		}
+		
+		JPanel topPanel = new JPanel();
+		JPanel centerPanel = new JPanel();
+		JPanel bottomPanel = new JPanel();
+		
+		// topPanel에 게시판 종류 버튼(추가될 때마다 표시해함(공지사항, 건의사항, 자유게시판, 이후 추가될때마다 표시))
+		
 		btnmain = new JButton("HOME");
 		btnmain.addActionListener(this);
 		btnuser = new JButton("내 정보");
@@ -31,23 +47,15 @@ public class MainGUI extends JFrame implements ActionListener{
 		btnexit = new JButton("종료");
 		btnexit.addActionListener(this);
 		
-		panel.add(btnmain);
-		panel.add(btnuser);
-		panel.add(btnlogout);
-		panel.add(btnexit);
+		bottomPanel.add(btnmain);
+		bottomPanel.add(btnuser);
+		bottomPanel.add(btnlogout);
+		bottomPanel.add(btnexit);
 		
-		setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
-		add(panel);
+		add(topPanel, BorderLayout.NORTH);
+		add(centerPanel, BorderLayout.CENTER);
+		add(bottomPanel, BorderLayout.SOUTH);
 		setLocationRelativeTo(null);
-		
-		// 현재 GUI화면 진입 시 로그인 체크 여부
-		if (!UserSession.getInstance().isLoggedIn()) {
-			// 현재 생성자를 종료 후 로그인 화면으로 이동
-			JOptionPane.showMessageDialog(this, "로그인을 먼저 해주세요.", "접근 제한", JOptionPane.WARNING_MESSAGE);	
-			dispose();
-			(new LoginGUI()).setVisible(true);
-			return;
-		}
 	}
 	
 	@Override
