@@ -44,7 +44,26 @@ public class TableAttachmentsDTO {
 	public int getFiledId() { return fileId; }
 	public void setFileId(int fileId) { this.fileId = fileId; }
 	
-	public 
+	public int getPostId() { return postId; }
+	public void setPostId(int postId) { this.fileId = fileId; }
+	
+	public String getOriginName() { return originName; }
+	public void setOriginName(String originName) { this.originName = originName; }
+	
+	public String getSaveName() { return saveName; }
+	public void setSaveName(String saveName) { this.saveName = saveName; }
+	
+	public String getSavePath() { return savePath; }
+	public void setSavePath(String savePath) { this.savePath = savePath; }
+	
+	public long getFileSize() { return fileSize; }
+	public void setFileSize(long fileSize) { this.fileSize = fileSize; }
+	
+	public String getExt() { return ext; }
+	public void setExt(String ext) { this.ext = ext; }
+	
+	public Timestamp getCreatedAt() { return createdAt; }
+	public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
 	
 	@Override
 	public String toString() {
