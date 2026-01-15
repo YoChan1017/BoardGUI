@@ -4,12 +4,17 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import dbms.boards.TableBoardsDAO;
+import dbms.boards.TableBoardsDTO;
+import gui.board.boards.BoardGUI;
 import session.UserSession;
 
 public class MainGUI extends JFrame implements ActionListener{
@@ -37,6 +42,24 @@ public class MainGUI extends JFrame implements ActionListener{
 		JPanel bottomPanel = new JPanel();
 		
 		// topPanel에 게시판 종류 버튼(추가될 때마다 표시해함(공지사항, 건의사항, 자유게시판, 이후 추가될때마다 표시))
+		// 눌렀을시 BoardGUI화면으로 이동되며 해당 게시판의 정보 표시
+		TableBoardsDAO boardDao = new TableBoardsDAO();
+		List<TableBoardsDTO> boardList = boardDao.getAllBoards();
+		if (boardList != null) {
+			for (TableBoardsDTO board : boardList) {
+				if (board.isActive()) { // 활성화된 게시판만 버튼 표시
+					JButton btnBoard = new JButton(board.getName());
+					btnBoard.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							setVisible(false);
+							new BoardGUI(board).setVisible(true);
+						}
+					});
+					topPanel.add(btnBoard);
+				}
+			}
+		}
 		
 		btnmain = new JButton("HOME");
 		btnmain.addActionListener(this);

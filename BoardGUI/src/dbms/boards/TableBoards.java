@@ -25,7 +25,7 @@ public class TableBoards {
 				+ "type VARCHAR(20) DEFAULT 'NORMAL', "			// 게시판 타입 (구분용)
 				+ "read_role INT DEFAULT 1, "					// 읽기 권한 레벨(기본값:1)
 				+ "write_role INT DEFAULT 1, "					// 쓰기 권한 레벨(기본값:1)
-				+ "is_actives BOOLEAN DEFAULT TRUE"				// 활성 여부(기본값:true)
+				+ "is_active BOOLEAN DEFAULT TRUE"				// 활성 여부(기본값:true)
 				+ ")";
 		
 		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
