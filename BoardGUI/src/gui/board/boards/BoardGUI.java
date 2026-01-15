@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import dbms.boards.TableBoardsDTO;
 import gui.DetailsGUI;
@@ -51,6 +52,17 @@ public class BoardGUI extends JFrame implements ActionListener {
 		JPanel centerPanel = new JPanel();
 		JPanel bottomPanel = new JPanel();
 		
+		// topPanel
+		lblBoardName = new JLabel(boardInfo.getName());
+		lblBoardName.setHorizontalAlignment(SwingConstants.CENTER);
+		topPanel.add(lblBoardName);
+		
+		//centerPanel
+		// 게시글 목록
+		// 게시글 작성 버튼
+		// 게시글 검색란
+		
+		// bottomPanel
 		btnmain = new JButton("HOME");
 		btnmain.addActionListener(this);
 		btnuser = new JButton("내 정보");
@@ -103,6 +115,6 @@ public class BoardGUI extends JFrame implements ActionListener {
 	}
 
 	public static void main(String[] args) {
-		
+		// MainGUI에서 버튼 클릭으로 진입
 	}
 }

@@ -61,6 +61,10 @@ public class MainGUI extends JFrame implements ActionListener{
 			}
 		}
 		
+		// centerPanel
+		// 접속중인 계정의 닉네임, 게시판별 최신 정보 등 표시
+		
+		// bottomPanel
 		btnmain = new JButton("HOME");
 		btnmain.addActionListener(this);
 		btnuser = new JButton("내 정보");
