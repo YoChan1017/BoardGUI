@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -18,6 +19,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import dbms.boards.TableBoardsDTO;
+import dbms.posts.TablePostsDAO;
+import dbms.posts.TablePostsDTO;
 import dbms.users.TableUsersRole;
 import gui.DetailsGUI;
 import gui.LoginGUI;
@@ -35,6 +38,7 @@ public class PostWriteGUI extends JFrame implements ActionListener {
 	private JTextArea txtContent;
 	private JCheckBox chkSecret, chkNotice;
 	private JLabel lblFileName;
+	private File selectedFile;
 	private JButton btnmain, btnuser, btnlogout, btnexit, btnupload, btncancel, btnback, btnFile;
 	
 	// 생성자
@@ -140,7 +144,50 @@ public class PostWriteGUI extends JFrame implements ActionListener {
 	// 메서드
 	// DB 저장
 	private void uploadPost() {
+		String title = txtTitle.getText().trim();
+		String content = txtContent.getText().trim();
+		boolean isSecret = chkSecret.isSelected();
+		boolean isNotice = chkNotice.isSelected();
 		
+		// 제목+내용 미작성시
+		if (title.isEmpty()) { // 제목(title)
+			JOptionPane.showMessageDialog(this, "제목을 입력해주세요.", "입력 오류", JOptionPane.WARNING_MESSAGE);
+			txtTitle.requestFocus();
+			return;
+		}
+		if (content.isEmpty()) { // 내용(content)
+			JOptionPane.showMessageDialog(this, "내용을 입력해주세요.", "입력 오류", JOptionPane.WARNING_MESSAGE);
+			txtContent.requestFocus();
+			return;
+		}
+		
+		int userId = UserSession.getInstance().getUser().getUserId();
+		int boardId = currentBoard.getBoardId();
+		TablePostsDTO newPost = new TablePostsDTO(boardId, userId, title, content, isNotice, isSecret);
+		TablePostsDAO postDao = new TablePostsDAO();
+		
+		int generatedPostId = postDao.insertPost(newPost);
+		if (generatedPostId > 0) {
+			// 파일이 첨부되었을시
+			if (selectedFile != null) {
+				boolean fileSaved = saveAttachment(generatedPostId, selectedFile);
+				if (!fileSaved) {
+					JOptionPane.showMessageDialog(this, "게시글은 등록되었으나 파일 저장에 실패하였습니다.", "파일 오류", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+			JOptionPane.showMessageDialog(this, "게시글이 성공적으로 등록되었습니다.", "등록 성공", JOptionPane.INFORMATION_MESSAGE);
+			setVisible(false);
+			(new BoardGUI(currentBoard)).setVisible(true);
+		} else {
+			JOptionPane.showMessageDialog(this, "게시글 등록에 실패하였습니다.", "등록 실패", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
+	// 파일 저장
+	private boolean saveAttachment(int postId, File file) {
+		
+		
+		return false;
 	}
 	
 	// 입력 필드 초기화
@@ -149,7 +196,8 @@ public class PostWriteGUI extends JFrame implements ActionListener {
 		txtContent.setText("");					// 내용
 		chkSecret.setSelected(false);			// 비밀글 여부
 		chkNotice.setSelected(false);			// 공지글 여부
-		lblFileName.setText("선택된 파일 없음");	// 첨부파일
+		selectedFile = null;					// 첨부파일 초기화
+		lblFileName.setText("선택된 파일 없음");	// 첨부파일 상태여부
 	}
 	
 	@Override
@@ -179,7 +227,10 @@ public class PostWriteGUI extends JFrame implements ActionListener {
 			
 		} else if(event.getSource() == btnupload) {
 			// 작성한 게시글 업로드
-			
+			int choice = JOptionPane.showConfirmDialog(this,  "게시글을 등록하시겠습니까?", "등록 확인", JOptionPane.YES_NO_OPTION);
+			if (choice == JOptionPane.YES_OPTION) {
+				uploadPost();
+			}
 			
 		} else if(event.getSource() == btncancel) {
 			// 작성한 글 취소(지우기)
@@ -195,9 +246,6 @@ public class PostWriteGUI extends JFrame implements ActionListener {
 			JFileChooser fileChooser = new JFileChooser();
 			int option = fileChooser.showOpenDialog(this);
 			if (option == JFileChooser.APPROVE_OPTION) {
-				String fileName = fileChooser.getSelectedFile().getName();
-				lblFileName.setText(fileName);
-				JOptionPane.showMessageDialog(this,  "파일이 선택되었습니다 : " + fileName);
 				// DB 저장 추가
 			}
 		}
