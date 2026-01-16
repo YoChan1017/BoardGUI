@@ -13,10 +13,14 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 import dbms.boards.TableBoardsDTO;
 import dbms.users.TableUsersRole;
@@ -41,6 +45,8 @@ public class BoardGUI extends JFrame implements ActionListener {
 	private JLabel lblBoardName;
 	private JComboBox<String> cbSearchType;
 	private JTextField txtSearch;
+	private DefaultTableModel tableModel;
+	private JTable postTable;
 	
 	// 생성자
 	public BoardGUI(TableBoardsDTO boardInfo) {
@@ -107,23 +113,35 @@ public class BoardGUI extends JFrame implements ActionListener {
 		JPanel listContainerPanel = new JPanel(new BorderLayout());
 		listContainerPanel.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
 		// 목록 Header
-		JPanel headerPanel = new JPanel(new GridLayout(1, 5));
-		String[] headers = {"번호", "제목", "작성자", "작성일", "조회수"};
-		for (String h : headers) {
-			JLabel lbl = new JLabel(h, SwingConstants.CENTER);
-			headerPanel.add(lbl);
-		}
+		String[] columnNames = {"번호", "제목", "작성자", "작성일", "조회수"};
+		tableModel = new DefaultTableModel(columnNames, 0) {
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return false;
+			}
+		};
 		// 목록 List
-		JPanel listContentPanel = new JPanel(new BorderLayout());
-		JLabel lblEmpty = new JLabel("작성된 게시글이 없습니다.");
-		lblEmpty.setHorizontalAlignment(SwingConstants.CENTER);
-		listContentPanel.add(lblEmpty, BorderLayout.CENTER);
-		// listContainerPanel > 목록Header, 목록List
-		listContainerPanel.add(headerPanel, BorderLayout.NORTH);
-		listContainerPanel.add(listContentPanel, BorderLayout.CENTER);
+		postTable = new JTable(tableModel);
+		postTable.setRowHeight(25);
+		postTable.getColumn("번호").setPreferredWidth(50);
+		postTable.getColumn("제목").setPreferredWidth(300);
+		postTable.getColumn("작성자").setPreferredWidth(100);
+		postTable.getColumn("작성일").setPreferredWidth(150);
+		postTable.getColumn("조회수").setPreferredWidth(50);
+		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+		centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+		postTable.getColumn("번호").setCellRenderer(centerRenderer);
+		postTable.getColumn("작성자").setCellRenderer(centerRenderer);
+		postTable.getColumn("작성일").setCellRenderer(centerRenderer);
+		postTable.getColumn("조회수").setCellRenderer(centerRenderer);
+		JScrollPane scrollPane = new JScrollPane(postTable);
+		scrollPane.getViewport().setBackground(Color.WHITE);
+		listContainerPanel.add(scrollPane, BorderLayout.CENTER);
 		
 		centerPanel.add(functionPanel, BorderLayout.NORTH); 		// centerPanel에서 상단(북쪽)에 functionPanel 배치
+		centerPanel.add(new JPanel(), BorderLayout.CENTER);
 		centerPanel.add(listContainerPanel, BorderLayout.CENTER); 	// centerPanel에서 중앙에 listContainerPanel 배치
+		loadPostList();	// 데이터 불러오기
 		
 		// 하단(bottomPanel)
 		btnmain = new JButton("HOME");

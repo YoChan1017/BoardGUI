@@ -59,7 +59,7 @@ public class PostWriteGUI extends JFrame implements ActionListener {
 		}
 		
 		JPanel topPanel = new JPanel();
-		JPanel centerPanel = new JPanel();
+		JPanel centerPanel = new JPanel(new BorderLayout());
 		JPanel bottomPanel = new JPanel();
 		
 		// Panel은 상단, 중단, 하단으로 생성
