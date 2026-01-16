@@ -23,6 +23,7 @@ import dbms.users.TableUsersRole;
 import gui.DetailsGUI;
 import gui.LoginGUI;
 import gui.MainGUI;
+import gui.board.posts.PostWriteGUI;
 import session.UserSession;
 
 public class BoardGUI extends JFrame implements ActionListener {
@@ -62,7 +63,7 @@ public class BoardGUI extends JFrame implements ActionListener {
 		JPanel centerPanel = new JPanel(new BorderLayout());
 		JPanel bottomPanel = new JPanel();
 		
-		// topPanel
+		// 상단(topPanel)
 		lblBoardName = new JLabel(boardInfo.getName());
 		// lblBoardName.setFont(new Font()); > 폰트 나중에 추가
 		lblBoardName.setHorizontalAlignment(SwingConstants.CENTER);
@@ -102,7 +103,7 @@ public class BoardGUI extends JFrame implements ActionListener {
 		functionPanel.add(searchPanel, BorderLayout.WEST);
 		functionPanel.add(writePanel, BorderLayout.EAST);
 		
-		// centerPanel - 게시글 목록 Panel
+		// 중앙(centerPanel) - 게시글 목록 Panel
 		JPanel listContainerPanel = new JPanel(new BorderLayout());
 		listContainerPanel.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
 		// 목록 Header
@@ -124,7 +125,7 @@ public class BoardGUI extends JFrame implements ActionListener {
 		centerPanel.add(functionPanel, BorderLayout.NORTH); 		// centerPanel에서 상단(북쪽)에 functionPanel 배치
 		centerPanel.add(listContainerPanel, BorderLayout.CENTER); 	// centerPanel에서 중앙에 listContainerPanel 배치
 		
-		// bottomPanel
+		// 하단(bottomPanel)
 		btnmain = new JButton("HOME");
 		btnmain.addActionListener(this);
 		btnuser = new JButton("내 정보");
@@ -147,7 +148,10 @@ public class BoardGUI extends JFrame implements ActionListener {
 	}
 	
 	// 메서드
-	
+	// 게시글 목록 불러오기
+	private void loadPostList() {
+		
+	}
 	
 	// 버튼 이벤트
 	@Override
@@ -180,7 +184,8 @@ public class BoardGUI extends JFrame implements ActionListener {
 			
 		} else if(event.getSource() == btnwrite) {
 			// 글 작성 버튼 기능 추가
-			
+			setVisible(false);
+			(new PostWriteGUI(currentBoard)).setVisible(true);
 		}
 	}
 
