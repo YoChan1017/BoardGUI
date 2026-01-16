@@ -6,6 +6,7 @@
 > Database 확인 > 없을 시 생성 쿼리문 작성
 > Table 확인 > 없을 시 생성 쿼리문 작성
 > boards_table 생성 시 기본 정보 작성
+> 첨부파일 복사 경로 생성
 
 각 테이블 DAO/DTO 작성 (대규모 프로젝트가 아니므로 DAO와 DTO만 작성함)
 > DAO : DB 접근 (CRUD Query 실행)

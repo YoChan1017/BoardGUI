@@ -180,6 +180,7 @@ public class PostWriteGUI extends JFrame implements ActionListener {
 		} else if(event.getSource() == btnupload) {
 			// 작성한 게시글 업로드
 			
+			
 		} else if(event.getSource() == btncancel) {
 			// 작성한 글 취소(지우기)
 			reset();
