@@ -136,3 +136,8 @@ Table_attachments
 users > boards > posts > comments > attachments
 (TableUsers > TableBoards > TablePosts > TableComments > TableAttachments)
 테이블 생성 후 UI 진입
+
+
+
+# DB 서버 생성 시 DB 계정 추가, 첨부파일 경로 변경할 것
+boarddb 전용 계정 추가, 첨부파일 경로 리눅스 서버 경로로 변경

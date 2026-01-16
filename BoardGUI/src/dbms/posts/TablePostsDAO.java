@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 
 import dbms.DBcon;
@@ -15,21 +16,29 @@ public class TablePostsDAO {
 		
 	// 게시글 생성(INSERT)
 	public int insertPost(TablePostsDTO post) {
-		int result = 0;
+		int generatedId = 0;
 		String sql = "INSERT INTO posts (board_id, user_id, title, content, is_notice, is_secret) VALUES (?, ?, ?, ?, ?, ?)";
-		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 			pstmt.setInt(1,  post.getBoardId());
 			pstmt.setInt(2, post.getUserId());
 			pstmt.setString(3, post.getTitle());
 			pstmt.setString(4, post.getContent());
 			pstmt.setBoolean(5, post.isNotice());
 			pstmt.setBoolean(6, post.isSecret());
-			result = pstmt.executeUpdate();
+			int affectedRows = pstmt.executeUpdate();
+			// post_id 가져오기
+			if (affectedRows > 0) {
+				try (ResultSet rs = pstmt.getGeneratedKeys()) {
+					if (rs.next()) {
+						generatedId = rs.getInt(1);
+					}
+				}
+			}
 		} catch (SQLException e) {
 			System.out.println("게시글 작성 실패 : " + e.getMessage());
 			e.printStackTrace();
 		}
-		return result;
+		return generatedId;
 	}
 	
 	// 게시글 상세 조회(SELECT)

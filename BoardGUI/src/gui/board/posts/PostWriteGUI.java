@@ -5,6 +5,10 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -18,6 +22,9 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import dbms.StorageSetup;
+import dbms.attachments.TableAttachmentsDAO;
+import dbms.attachments.TableAttachmentsDTO;
 import dbms.boards.TableBoardsDTO;
 import dbms.posts.TablePostsDAO;
 import dbms.posts.TablePostsDTO;
@@ -40,6 +47,7 @@ public class PostWriteGUI extends JFrame implements ActionListener {
 	private JLabel lblFileName;
 	private File selectedFile;
 	private JButton btnmain, btnuser, btnlogout, btnexit, btnupload, btncancel, btnback, btnFile;
+	private static final long MAX_FILE_SIZE = 30 * 1024 * 1024; // 파일 용량 제한 (30MB)
 	
 	// 생성자
 	public PostWriteGUI(TableBoardsDTO boardInfo) {
@@ -185,9 +193,29 @@ public class PostWriteGUI extends JFrame implements ActionListener {
 	
 	// 파일 저장
 	private boolean saveAttachment(int postId, File file) {
+		String originName = file.getName();
+		// 파일명 중복 방지
+		String saveName = UUID.randomUUID().toString() + "_" +originName;
+		String ext = "";
+		int dotIndex = originName.lastIndexOf('.');
+		if (dotIndex > 0) {
+			ext = originName.substring(dotIndex + 1);
+		}
+		long fileSize = file.length();
 		
-		
-		return false;
+		// 파일 복사 = SAVE_DIR 경로
+		File destFile = new File(StorageSetup.SAVE_DIR + saveName);
+		try {
+			Files.copy(file.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		// 첨부파일 정보 DB 저장
+		TableAttachmentsDTO attachDto = new TableAttachmentsDTO(postId, originName, saveName, StorageSetup.SAVE_DIR, fileSize, ext);
+		TableAttachmentsDAO attachDao = new TableAttachmentsDAO();
+		int result = attachDao.insertAttachment(attachDto);
+		return result > 0;
 	}
 	
 	// 입력 필드 초기화
@@ -246,7 +274,15 @@ public class PostWriteGUI extends JFrame implements ActionListener {
 			JFileChooser fileChooser = new JFileChooser();
 			int option = fileChooser.showOpenDialog(this);
 			if (option == JFileChooser.APPROVE_OPTION) {
-				// DB 저장 추가
+				File tempFile = fileChooser.getSelectedFile();
+				if (tempFile.length() > MAX_FILE_SIZE) {
+					JOptionPane.showMessageDialog(this, "파일 크기는 30MB를 초과할 수 없습니다.", "용량 초과", JOptionPane.WARNING_MESSAGE);
+					selectedFile = null;
+					lblFileName.setText("선택된 파일 없음");
+				} else {
+					selectedFile = tempFile;
+					lblFileName.setText(selectedFile.getName());
+				}
 			}
 		}
 	}
