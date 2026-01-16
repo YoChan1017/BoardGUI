@@ -72,11 +72,11 @@ public class TablePostsDTO {
 	public Timestamp getUpdatedAt() { return updatedAt; }
 	public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
 	
-	public boolean getisNotice() { return isNotice; }
-	public void setisNotice(boolean isNotice) { this.isNotice = isNotice; }
+	public boolean isNotice() { return isNotice; }
+	public void setNotice(boolean isNotice) { this.isNotice = isNotice; }
 	
-	public boolean getisSecret() { return isSecret; }
-	public void setisSecret(boolean isSecret) { this.isSecret = isSecret; }
+	public boolean isSecret() { return isSecret; }
+	public void setSecret(boolean isSecret) { this.isSecret = isSecret; }
 	
 	public String getStatus() { return status; }
 	public void setStatus(String status) { this.status = status; }

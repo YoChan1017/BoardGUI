@@ -43,7 +43,7 @@ public class TableUsersDAO {
 		return result;
 	}
 	
-	// 회원 조회 (READ)
+	// 회원 조회 (READ) - 이름으로 조회
 	public TableUsersDTO getUserByUsername(String username) {
 		TableUsersDTO user = null;
 		String sql = "SELECT * FROM users WHERE username = ?";
@@ -196,6 +196,34 @@ public class TableUsersDAO {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	// 회원 정보 조회2 - 고유키 조회
+	public TableUsersDTO getUserById(int userId) {
+		TableUsersDTO user = null;
+		String sql = "SELECT * FROM users WHERE user_id = ?";
+		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setInt(1, userId);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next()) {
+					user = new TableUsersDTO(
+							rs.getInt("user_id"),
+							rs.getString("username"),
+							rs.getString("password"),
+							rs.getString("nickname"),
+							rs.getDate("birth_date"),
+							rs.getString("phone"),
+							rs.getString("email"),
+							rs.getString("role"),
+							rs.getBoolean("is_active"),
+							rs.getTimestamp("created_at")
+							);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return user;
 	}
 	
 	// 필요 시 추가

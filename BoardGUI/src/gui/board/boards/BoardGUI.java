@@ -6,6 +6,8 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -23,6 +25,10 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import dbms.boards.TableBoardsDTO;
+import dbms.posts.TablePostsDAO;
+import dbms.posts.TablePostsDTO;
+import dbms.users.TableUsersDAO;
+import dbms.users.TableUsersDTO;
 import dbms.users.TableUsersRole;
 import gui.DetailsGUI;
 import gui.LoginGUI;
@@ -168,7 +174,35 @@ public class BoardGUI extends JFrame implements ActionListener {
 	// 메서드
 	// 게시글 목록 불러오기
 	private void loadPostList() {
+		tableModel.setRowCount(0);
+		TablePostsDAO postDAO = new TablePostsDAO();
+		TableUsersDAO userDAO = new TableUsersDAO();
 		
+		ArrayList<TablePostsDTO> postList = postDAO.getPostsByBoardId(currentBoard.getBoardId());
+		if (postList != null) {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+			for (TablePostsDTO post : postList) {
+				// 제목 처리 
+				String title = post.getTitle();
+				if (post.isNotice()) title = "[공지] " + title;
+				if (post.isSecret()) title = "🔒 " + title;
+				// 작성자 닉네임
+				String writerName = String.valueOf(post.getUserId());
+				TableUsersDTO writerInfo = userDAO.getUserById(post.getUserId());
+				if (writerInfo != null) {
+					writerName = writerInfo.getNickname();
+				}
+				// 목록 추가
+				Object[] rowData = {
+						post.getPostId(),
+						title,
+						writerName,
+						sdf.format(post.getCreatedAt()),
+						post.getViewCount()
+				};
+				tableModel.addRow(rowData);
+			}
+		}
 	}
 	
 	// 버튼 이벤트

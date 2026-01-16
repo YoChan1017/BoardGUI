@@ -22,8 +22,8 @@ public class TablePostsDAO {
 			pstmt.setInt(2, post.getUserId());
 			pstmt.setString(3, post.getTitle());
 			pstmt.setString(4, post.getContent());
-			pstmt.setBoolean(5, post.getisNotice());
-			pstmt.setBoolean(6, post.getisSecret());
+			pstmt.setBoolean(5, post.isNotice());
+			pstmt.setBoolean(6, post.isSecret());
 			result = pstmt.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println("게시글 작성 실패 : " + e.getMessage());
@@ -68,8 +68,8 @@ public class TablePostsDAO {
 		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1,  post.getTitle());
 			pstmt.setString(2, post.getContent());
-			pstmt.setBoolean(3, post.getisNotice());
-			pstmt.setBoolean(4, post.getisSecret());
+			pstmt.setBoolean(3, post.isNotice());
+			pstmt.setBoolean(4, post.isSecret());
 			pstmt.setInt(5, post.getPostId());
 			result = pstmt.executeUpdate();
 		} catch (SQLException e) {
