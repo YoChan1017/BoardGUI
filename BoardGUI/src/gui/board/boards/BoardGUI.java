@@ -1,7 +1,9 @@
 package gui.board.boards;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -13,6 +15,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 
 import dbms.boards.TableBoardsDTO;
 import dbms.users.TableUsersRole;
@@ -55,7 +59,7 @@ public class BoardGUI extends JFrame implements ActionListener {
 		}
 		
 		JPanel topPanel = new JPanel();
-		JPanel centerPanel = new JPanel();
+		JPanel centerPanel = new JPanel(new BorderLayout());
 		JPanel bottomPanel = new JPanel();
 		
 		// topPanel
@@ -64,15 +68,15 @@ public class BoardGUI extends JFrame implements ActionListener {
 		lblBoardName.setHorizontalAlignment(SwingConstants.CENTER);
 		topPanel.add(lblBoardName);
 		
-		//centerPanel
+		// centerPanel
 		// 게시글 목록 ( 작성자 / 제목 / 작성일 / 조회수 > 표시로 목록 나열 )
 		// 게시글 상세보기 > PostViewGUI로 이동(아직 미작성)
 		// 게시글 작성 버튼 > PostWriteGUI로 이동(아직 미작성)
 		// 게시글 검색란 ( [검색란] 검색버튼 ) > 입력 시 해당되는 게시글 목록 나열
-		
-		// 검색 Panel 생성
+
+		// centerPanel - 검색 Panel 생성
 		JPanel functionPanel = new JPanel(new BorderLayout());
-		JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+		JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
 		String[] searchTypes = {"제목", "내용", "작성자"};
 		cbSearchType = new JComboBox<>(searchTypes);
 		txtSearch = new JTextField(20);
@@ -80,8 +84,8 @@ public class BoardGUI extends JFrame implements ActionListener {
 		searchPanel.add(cbSearchType);
 		searchPanel.add(txtSearch);
 		searchPanel.add(btnsearch);
-		// 글작성 버튼 생성
-		JPanel writePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+		// centerPanel - 글작성 버튼 생성
+		JPanel writePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
 		btnwrite = new JButton("글작성");
 		btnwrite.addActionListener(this);
 		// 글작성 버튼 권한 확인
@@ -94,12 +98,31 @@ public class BoardGUI extends JFrame implements ActionListener {
 			}
 		}
 		writePanel.add(btnwrite);
-		
+		// functionPanel > 검색하기, 글작성 버튼
 		functionPanel.add(searchPanel, BorderLayout.WEST);
 		functionPanel.add(writePanel, BorderLayout.EAST);
 		
-		centerPanel.add(functionPanel, BorderLayout.NORTH); // centerPanel에서 상단(북쪽) 배치
+		// centerPanel - 게시글 목록 Panel
+		JPanel listContainerPanel = new JPanel(new BorderLayout());
+		listContainerPanel.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
+		// 목록 Header
+		JPanel headerPanel = new JPanel(new GridLayout(1, 5));
+		String[] headers = {"번호", "제목", "작성자", "작성일", "조회수"};
+		for (String h : headers) {
+			JLabel lbl = new JLabel(h, SwingConstants.CENTER);
+			headerPanel.add(lbl);
+		}
+		// 목록 List
+		JPanel listContentPanel = new JPanel(new BorderLayout());
+		JLabel lblEmpty = new JLabel("작성된 게시글이 없습니다.");
+		lblEmpty.setHorizontalAlignment(SwingConstants.CENTER);
+		listContentPanel.add(lblEmpty, BorderLayout.CENTER);
+		// listContainerPanel > 목록Header, 목록List
+		listContainerPanel.add(headerPanel, BorderLayout.NORTH);
+		listContainerPanel.add(listContentPanel, BorderLayout.CENTER);
 		
+		centerPanel.add(functionPanel, BorderLayout.NORTH); 		// centerPanel에서 상단(북쪽)에 functionPanel 배치
+		centerPanel.add(listContainerPanel, BorderLayout.CENTER); 	// centerPanel에서 중앙에 listContainerPanel 배치
 		
 		// bottomPanel
 		btnmain = new JButton("HOME");
