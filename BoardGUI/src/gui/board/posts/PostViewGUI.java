@@ -5,17 +5,28 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import dbms.StorageSetup;
+import dbms.attachments.TableAttachmentsDAO;
+import dbms.attachments.TableAttachmentsDTO;
 import dbms.boards.TableBoardsDTO;
 import dbms.posts.TablePostsDAO;
 import dbms.posts.TablePostsDTO;
@@ -33,9 +44,11 @@ public class PostViewGUI extends JFrame implements ActionListener {
 	// 필드
 	private TableBoardsDTO currentBoard;
 	private TablePostsDTO currentPost;
+	private TableAttachmentsDTO attachedFile;
 	private int postId;
-	private JLabel lblTitle, lblWriter, lblDate, lblViewCount;
-	private JButton btnmain, btnuser, btnlogout, btnexit;
+	private JLabel lblTitle, lblWriter, lblDate, lblViewCount, lblFile;
+	private JTextArea txtContent;
+	private JButton btnmain, btnuser, btnlogout, btnexit, btndownload, btnlist, btnupdate, btndelete;
 	
 	// 생성자
 	public PostViewGUI(TableBoardsDTO board, int postId) {
@@ -115,9 +128,43 @@ public class PostViewGUI extends JFrame implements ActionListener {
 		infoPanel.add(lblTitle, BorderLayout.CENTER);
 		infoPanel.add(subInfoPanel, BorderLayout.SOUTH);
 		// 게시글 내용
+		txtContent = new JTextArea();
+		txtContent.setText(currentPost.getContent());
+		txtContent.setEditable(false);
+		txtContent.setLineWrap(true);
+		JScrollPane contentScroll = new JScrollPane(txtContent);
+		contentScroll.setBorder(new EmptyBorder(10, 0, 10, 0));
+		// 첨부파일
+		JPanel bottomContentPanel = new JPanel(new BorderLayout());
+		JPanel filePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		filePanel.setBorder(BorderFactory.createTitledBorder("첨부파일"));
+		TableAttachmentsDAO attachDAO = new TableAttachmentsDAO();
+		ArrayList<TableAttachmentsDTO> fileList = attachDAO.getAttachmentsByPostId(postId);
+		if (fileList != null && !fileList.isEmpty()) {
+			attachedFile = fileList.get(0);
+			long fileSizeKB = attachedFile.getFileSize() / 1024;
+			if (fileSizeKB == 0 && attachedFile.getFileSize() > 0) fileSizeKB = 1;
+			lblFile = new JLabel(attachedFile.getOriginName() + " (" + fileSizeKB + " KB");
+			btndownload = new JButton("다운로드");
+			btndownload.addActionListener(this);
+			filePanel.add(lblFile);
+			filePanel.add(btndownload);
+		} else {
+			filePanel.add(new JLabel("첨부된 파일이 없습니다"));
+		}
+		// 목록/수정/삭제 버튼
+		JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		btnlist = new JButton("목록");
+		btnupdate = new JButton("수정");
+		btndelete = new JButton("삭제");
+		
+		bottomContentPanel.add(filePanel, BorderLayout.NORTH);
+		bottomContentPanel.add(actionPanel, BorderLayout.SOUTH);
+		centerPanel.add(infoPanel, BorderLayout.NORTH);
+		centerPanel.add(contentScroll, BorderLayout.CENTER);
+		centerPanel.add(bottomContentPanel, BorderLayout.SOUTH);
 		
 		
-				
 		// bottomPanel
 		btnmain = new JButton("HOME");
 		btnmain.addActionListener(this);
@@ -140,10 +187,34 @@ public class PostViewGUI extends JFrame implements ActionListener {
 	}
 	
 	// 메서드
+	// 데이터불러오기 및 조회수 증가
 	private void loadPostData() {
 		TablePostsDAO dao = new TablePostsDAO();
 		dao.increaseViewCount(postId); 			// 조회수 증가
 		currentPost = dao.getPostById(postId);	// 게시글 정보 가져오기
+	}
+	
+	// 파일 다운로드 
+	private void downloadFile() {
+		if (attachedFile == null) return;
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setSelectedFile(new File(attachedFile.getOriginName()));
+		int option = fileChooser.showSaveDialog(this);
+		if (option == JFileChooser.APPROVE_OPTION) {
+			File saveDest = fileChooser.getSelectedFile();
+			File sourceFile = new File(StorageSetup.SAVE_DIR + attachedFile.getSaveName());
+			if (sourceFile.exists()) {
+				try {
+					Files.copy(sourceFile.toPath(), saveDest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+					JOptionPane.showMessageDialog(this, "파일이 성공적으로 다운로드 되었습니다.", " 다운로드 완료", JOptionPane.INFORMATION_MESSAGE);
+				} catch (IOException e) {
+					e.printStackTrace();
+					JOptionPane.showMessageDialog(this,  "파일 다운로드 중 오류가 발생하였습니다.\n" + e.getMessage(), "파일 오류", JOptionPane.ERROR_MESSAGE);
+				}
+			} else {
+				JOptionPane.showMessageDialog(this, "원본 파일이 존재하지 않습니다.", "파일 없음", JOptionPane.ERROR_MESSAGE);
+			}
+		}
 	}
 	
 	@Override
