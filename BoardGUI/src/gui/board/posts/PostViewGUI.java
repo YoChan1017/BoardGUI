@@ -47,8 +47,9 @@ public class PostViewGUI extends JFrame implements ActionListener {
 	private TableAttachmentsDTO attachedFile;
 	private int postId;
 	private JLabel lblTitle, lblWriter, lblDate, lblViewCount, lblFile;
-	private JTextArea txtContent;
-	private JButton btnmain, btnuser, btnlogout, btnexit, btndownload, btnlist, btnupdate, btndelete;
+	private JTextArea txtContent, txtCommentInput;
+	private JPanel commentListPanel;
+	private JButton btnmain, btnuser, btnlogout, btnexit, btndownload, btnlist, btnupdate, btndelete, btncommentadd;
 	
 	// 생성자
 	public PostViewGUI(TableBoardsDTO board, int postId) {
@@ -94,8 +95,8 @@ public class PostViewGUI extends JFrame implements ActionListener {
 			return;
 		}
 				
-		JPanel topPanel = new JPanel();
-		JPanel centerPanel = new JPanel();
+		JPanel topPanel = new JPanel(new BorderLayout());
+		JPanel centerPanel = new JPanel(new BorderLayout());
 		JPanel bottomPanel = new JPanel();
 		
 		// topPanel
@@ -152,13 +153,38 @@ public class PostViewGUI extends JFrame implements ActionListener {
 		} else {
 			filePanel.add(new JLabel("첨부된 파일이 없습니다"));
 		}
+		// 댓글 목록/입력
+		JPanel commentPanel = new JPanel(new BorderLayout());
+		commentPanel.setBorder(BorderFactory.createTitledBorder("댓글"));
+		commentListPanel = new JPanel();
+		commentListPanel.add(new JLabel("댓글 목록 공간"));
+		JScrollPane commentScroll = new JScrollPane(commentListPanel);
+		commentScroll.setPreferredSize(new java.awt.Dimension(0, 150));
+		JPanel commentInputPanel = new JPanel(new BorderLayout());
+		txtCommentInput = new JTextArea(3, 50);
+		btncommentadd = new JButton("등록");
+		btncommentadd.addActionListener(this);
+		commentInputPanel.add(new JScrollPane(txtCommentInput), BorderLayout.CENTER);
+		commentInputPanel.add(btncommentadd, BorderLayout.EAST);
 		// 목록/수정/삭제 버튼
 		JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		btnlist = new JButton("목록");
-		btnupdate = new JButton("수정");
-		btndelete = new JButton("삭제");
-		
+		btnlist.addActionListener(this);
+		actionPanel.add(btnlist);
+		int currentUserId = UserSession.getInstance().getUser().getUserId();
+		String roleStr = UserSession.getInstance().getUser().getRole();
+		boolean isAdmin = "admin".equalsIgnoreCase(roleStr);
+		if (currentPost.getUserId() == currentUserId || isAdmin) {
+			btnupdate = new JButton("수정");
+			btndelete = new JButton("삭제");
+			btnupdate.addActionListener(this);
+			btndelete.addActionListener(this);
+			actionPanel.add(btnupdate);
+			actionPanel.add(btndelete);
+		}
+		// centerPanel 내부 배치
 		bottomContentPanel.add(filePanel, BorderLayout.NORTH);
+		bottomContentPanel.add(commentPanel, BorderLayout.CENTER);
 		bottomContentPanel.add(actionPanel, BorderLayout.SOUTH);
 		centerPanel.add(infoPanel, BorderLayout.NORTH);
 		centerPanel.add(contentScroll, BorderLayout.CENTER);
@@ -217,6 +243,17 @@ public class PostViewGUI extends JFrame implements ActionListener {
 		}
 	}
 	
+	private void deletePost() {
+		int choice = JOptionPane.showConfirmDialog(this, "정말로 해당 게시글을 삭제하시겠습니까?", "삭제 확인", JOptionPane.YES_NO_OPTION);
+		if (choice == JOptionPane.YES_OPTION) {
+			JOptionPane.showMessageDialog(this, "게시글이 삭제되었습니다.");
+			setVisible(false);
+			(new BoardGUI(currentBoard)).setVisible(true);
+		} else {
+			JOptionPane.showMessageDialog(this, "삭제실패");
+		}
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		if(event.getSource() == btnmain) {
@@ -241,6 +278,26 @@ public class PostViewGUI extends JFrame implements ActionListener {
 			// 세션 제거 추가 - 로그아웃 처리
 			// 프로그램 종료로 세션 자동 소멸
 			System.exit(0);
+			
+		} else if(event.getSource() == btnlist) {
+			// 게시판(게시글 목록으로 이동)
+			setVisible(false);
+			(new BoardGUI(currentBoard)).setVisible(true);
+			
+		} else if(event.getSource() == btndelete) {
+			// 해당 게시글 삭제
+			deletePost();		
+			
+		} else if(event.getSource() == btnupdate) {
+			// 해당 게시글 수정 화면으로 이동
+			
+		} else if(event.getSource() == btndownload) {
+			// 첨부파일 다운로드
+			downloadFile();
+			
+		} else if(event.getSource() == btncommentadd) {
+			// 댓글 등록
+			
 		}
 	}
 
