@@ -6,6 +6,8 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseAdapter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
@@ -33,6 +35,7 @@ import dbms.users.TableUsersRole;
 import gui.DetailsGUI;
 import gui.LoginGUI;
 import gui.MainGUI;
+import gui.board.posts.PostViewGUI;
 import gui.board.posts.PostWriteGUI;
 import session.UserSession;
 
@@ -140,6 +143,22 @@ public class BoardGUI extends JFrame implements ActionListener {
 		postTable.getColumn("작성자").setCellRenderer(centerRenderer);
 		postTable.getColumn("작성일").setCellRenderer(centerRenderer);
 		postTable.getColumn("조회수").setCellRenderer(centerRenderer);
+		
+		postTable.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 1) { // 클릭 횟수
+					int row = postTable.getSelectedRow();
+					if (row != -1) {
+						int postId = (int) postTable.getValueAt(row, 0);
+						
+						setVisible(false);
+						(new PostViewGUI(currentBoard, postId)).setVisible(true);
+					}
+				}
+			}
+		});
+		
 		JScrollPane scrollPane = new JScrollPane(postTable);
 		scrollPane.getViewport().setBackground(Color.WHITE);
 		listContainerPanel.add(scrollPane, BorderLayout.CENTER);

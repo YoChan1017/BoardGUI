@@ -9,19 +9,30 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import dbms.boards.TableBoardsDTO;
+import dbms.posts.TablePostsDAO;
+import dbms.posts.TablePostsDTO;
+import dbms.users.TableUsersRole;
 import gui.DetailsGUI;
 import gui.LoginGUI;
 import gui.MainGUI;
+import gui.board.boards.BoardGUI;
 import session.UserSession;
 
 public class PostViewGUI extends JFrame implements ActionListener {
 	
 	// 필드
+	private TableBoardsDTO currentBoard;
+	private TablePostsDTO currentPost;
+	private int postId;
 	private JButton btnmain, btnuser, btnlogout, btnexit;
 	
 	// 생성자
-	public PostViewGUI() {
-		setTitle("");
+	public PostViewGUI(TableBoardsDTO board, int postId) {
+		this.currentBoard = board;
+		this.postId = postId;
+		
+		setTitle(currentBoard.getName() + " - 글 상세보기");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
 		JPanel panel = new JPanel();
@@ -35,13 +46,38 @@ public class PostViewGUI extends JFrame implements ActionListener {
 			(new LoginGUI()).setVisible(true);
 			return;
 		}
+		
+		// 데이터 load
+		loadPostData();
+		
+		// 비밀글 체크
+		if (currentPost != null && currentPost.isSecret() ) {
+			int currentUserId = UserSession.getInstance().getUser().getUserId();
+			String roleStr = UserSession.getInstance().getUser().getRole();
+			TableUsersRole userRole = TableUsersRole.fromDbRole(roleStr);
+			if (currentPost.getUserId() != currentUserId && userRole != TableUsersRole.ADMIN) {
+				JOptionPane.showMessageDialog(this, "비밀글은 작성자와 관리자만 볼 수 있습니다.", "열람 불가", JOptionPane.WARNING_MESSAGE);
+				dispose();
+				(new BoardGUI(currentBoard)).setVisible(true);
+				return;
+			}
+		}
+		
+		// 글 존재 여부
+		if (currentPost == null) {
+			JOptionPane.showMessageDialog(this,  "삭제되거나 존재하지 않는 게시글입니다.", "열람 오류", JOptionPane.ERROR_MESSAGE);
+			dispose();
+			(new BoardGUI(currentBoard)).setVisible(true);
+			return;
+		}
 				
 		JPanel topPanel = new JPanel();
 		JPanel centerPanel = new JPanel();
 		JPanel bottomPanel = new JPanel();
 		
 		// centerPanel
-		// 선택한 글 세부내용 표시 및 댓글 기능 추가
+		// 선택한 글 세부내용 표시
+		// 댓글 기능 추가
 		
 				
 		// bottomPanel
@@ -66,7 +102,11 @@ public class PostViewGUI extends JFrame implements ActionListener {
 	}
 	
 	// 메서드
-	
+	private void loadPostData() {
+		TablePostsDAO dao = new TablePostsDAO();
+		dao.increaseViewCount(postId); 			// 조회수 증가
+		currentPost = dao.getPostById(postId);	// 게시글 정보 가져오기
+	}
 	
 	@Override
 	public void actionPerformed(ActionEvent event) {
