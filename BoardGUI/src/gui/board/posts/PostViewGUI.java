@@ -1,17 +1,26 @@
 package gui.board.posts;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 
 import dbms.boards.TableBoardsDTO;
 import dbms.posts.TablePostsDAO;
 import dbms.posts.TablePostsDTO;
+import dbms.users.TableUsersDAO;
+import dbms.users.TableUsersDTO;
 import dbms.users.TableUsersRole;
 import gui.DetailsGUI;
 import gui.LoginGUI;
@@ -25,6 +34,7 @@ public class PostViewGUI extends JFrame implements ActionListener {
 	private TableBoardsDTO currentBoard;
 	private TablePostsDTO currentPost;
 	private int postId;
+	private JLabel lblTitle, lblWriter, lblDate, lblViewCount;
 	private JButton btnmain, btnuser, btnlogout, btnexit;
 	
 	// 생성자
@@ -75,9 +85,37 @@ public class PostViewGUI extends JFrame implements ActionListener {
 		JPanel centerPanel = new JPanel();
 		JPanel bottomPanel = new JPanel();
 		
+		// topPanel
+		// 게시판 이름
+		JLabel lblBoardName = new JLabel(currentBoard.getName());
+		lblBoardName.setHorizontalAlignment(SwingConstants.CENTER);
+		lblBoardName.setBorder(new EmptyBorder(10, 0, 10, 0));
+		topPanel.add(lblBoardName, BorderLayout.CENTER);
+		
 		// centerPanel
-		// 선택한 글 세부내용 표시
-		// 댓글 기능 추가
+		// 게시글 정보/내용/첨부파일
+		centerPanel.setBorder(new EmptyBorder(10, 20, 10, 20));
+		// 게시글 정보 헤더 - 제목/작성자/날짜/조회수
+		JPanel infoPanel = new JPanel(new BorderLayout());
+		infoPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
+		lblTitle = new JLabel(" " + currentPost.getTitle());
+		lblTitle.setBorder(new EmptyBorder(5, 0, 5, 0));
+		JPanel subInfoPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		TableUsersDAO userDAO = new TableUsersDAO();
+		TableUsersDTO writer = userDAO.getUserById(currentPost.getUserId());
+		String writerName = (writer != null) ? writer.getNickname() : "알수없음";
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		String dateStr = sdf.format(currentPost.getCreatedAt());
+		lblWriter = new JLabel("작성자 : " + writerName + " | ");
+		lblDate = new JLabel("작성일 : " + dateStr + " | ");
+		lblViewCount = new JLabel("조회 : " + currentPost.getViewCount());
+		subInfoPanel.add(lblWriter);
+		subInfoPanel.add(lblDate);
+		subInfoPanel.add(lblViewCount);
+		infoPanel.add(lblTitle, BorderLayout.CENTER);
+		infoPanel.add(subInfoPanel, BorderLayout.SOUTH);
+		// 게시글 내용
+		
 		
 				
 		// bottomPanel
