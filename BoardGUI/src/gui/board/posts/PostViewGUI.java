@@ -75,16 +75,8 @@ public class PostViewGUI extends JFrame implements ActionListener {
 		loadPostData();
 		
 		// 비밀글 체크
-		if (currentPost != null && currentPost.isSecret() ) {
-			int currentUserId = UserSession.getInstance().getUser().getUserId();
-			String roleStr = UserSession.getInstance().getUser().getRole();
-			TableUsersRole userRole = TableUsersRole.fromDbRole(roleStr);
-			if (currentPost.getUserId() != currentUserId && userRole != TableUsersRole.ADMIN) {
-				JOptionPane.showMessageDialog(this, "비밀글은 작성자와 관리자만 볼 수 있습니다.", "열람 불가", JOptionPane.WARNING_MESSAGE);
-				dispose();
-				(new BoardGUI(currentBoard)).setVisible(true);
-				return;
-			}
+		if (!checkReadPermission()) {
+			return;
 		}
 		
 		// 글 존재 여부
@@ -94,7 +86,8 @@ public class PostViewGUI extends JFrame implements ActionListener {
 			(new BoardGUI(currentBoard)).setVisible(true);
 			return;
 		}
-				
+		
+		// UI 구성
 		JPanel topPanel = new JPanel(new BorderLayout());
 		JPanel centerPanel = new JPanel(new BorderLayout());
 		JPanel bottomPanel = new JPanel();
@@ -109,25 +102,8 @@ public class PostViewGUI extends JFrame implements ActionListener {
 		// centerPanel
 		// 게시글 정보/내용/첨부파일
 		centerPanel.setBorder(new EmptyBorder(10, 20, 10, 20));
-		// 게시글 정보 헤더 - 제목/작성자/날짜/조회수
-		JPanel infoPanel = new JPanel(new BorderLayout());
-		infoPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
-		lblTitle = new JLabel(" " + currentPost.getTitle());
-		lblTitle.setBorder(new EmptyBorder(5, 0, 5, 0));
-		JPanel subInfoPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		TableUsersDAO userDAO = new TableUsersDAO();
-		TableUsersDTO writer = userDAO.getUserById(currentPost.getUserId());
-		String writerName = (writer != null) ? writer.getNickname() : "알수없음";
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-		String dateStr = sdf.format(currentPost.getCreatedAt());
-		lblWriter = new JLabel("작성자 : " + writerName + " | ");
-		lblDate = new JLabel("작성일 : " + dateStr + " | ");
-		lblViewCount = new JLabel("조회 : " + currentPost.getViewCount());
-		subInfoPanel.add(lblWriter);
-		subInfoPanel.add(lblDate);
-		subInfoPanel.add(lblViewCount);
-		infoPanel.add(lblTitle, BorderLayout.CENTER);
-		infoPanel.add(subInfoPanel, BorderLayout.SOUTH);
+		// 게시글 정보
+		JPanel infoPanel = createInfoPanel();	
 		// 게시글 내용
 		txtContent = new JTextArea();
 		txtContent.setText(currentPost.getContent());
@@ -135,53 +111,14 @@ public class PostViewGUI extends JFrame implements ActionListener {
 		txtContent.setLineWrap(true);
 		JScrollPane contentScroll = new JScrollPane(txtContent);
 		contentScroll.setBorder(new EmptyBorder(10, 0, 10, 0));
-		// 첨부파일
+		// centerPanel에서 하단 Panel > 첨부파일, 댓글, 버튼(수정/삭제/목록)
 		JPanel bottomContentPanel = new JPanel(new BorderLayout());
-		JPanel filePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		filePanel.setBorder(BorderFactory.createTitledBorder("첨부파일"));
-		TableAttachmentsDAO attachDAO = new TableAttachmentsDAO();
-		ArrayList<TableAttachmentsDTO> fileList = attachDAO.getAttachmentsByPostId(postId);
-		if (fileList != null && !fileList.isEmpty()) {
-			attachedFile = fileList.get(0);
-			long fileSizeKB = attachedFile.getFileSize() / 1024;
-			if (fileSizeKB == 0 && attachedFile.getFileSize() > 0) fileSizeKB = 1;
-			lblFile = new JLabel(attachedFile.getOriginName() + " (" + fileSizeKB + " KB");
-			btndownload = new JButton("다운로드");
-			btndownload.addActionListener(this);
-			filePanel.add(lblFile);
-			filePanel.add(btndownload);
-		} else {
-			filePanel.add(new JLabel("첨부된 파일이 없습니다"));
-		}
-		// 댓글 목록/입력
-		JPanel commentPanel = new JPanel(new BorderLayout());
-		commentPanel.setBorder(BorderFactory.createTitledBorder("댓글"));
-		commentListPanel = new JPanel();
-		commentListPanel.add(new JLabel("댓글 목록 공간"));
-		JScrollPane commentScroll = new JScrollPane(commentListPanel);
-		commentScroll.setPreferredSize(new java.awt.Dimension(0, 150));
-		JPanel commentInputPanel = new JPanel(new BorderLayout());
-		txtCommentInput = new JTextArea(3, 50);
-		btncommentadd = new JButton("등록");
-		btncommentadd.addActionListener(this);
-		commentInputPanel.add(new JScrollPane(txtCommentInput), BorderLayout.CENTER);
-		commentInputPanel.add(btncommentadd, BorderLayout.EAST);
+		// 첨부파일
+		JPanel filePanel = createFilePanel();
+		// 댓글 Panel
+		JPanel commentPanel = createCommentPanel();	
 		// 목록/수정/삭제 버튼
-		JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		btnlist = new JButton("목록");
-		btnlist.addActionListener(this);
-		actionPanel.add(btnlist);
-		int currentUserId = UserSession.getInstance().getUser().getUserId();
-		String roleStr = UserSession.getInstance().getUser().getRole();
-		boolean isAdmin = "admin".equalsIgnoreCase(roleStr);
-		if (currentPost.getUserId() == currentUserId || isAdmin) {
-			btnupdate = new JButton("수정");
-			btndelete = new JButton("삭제");
-			btnupdate.addActionListener(this);
-			btndelete.addActionListener(this);
-			actionPanel.add(btnupdate);
-			actionPanel.add(btndelete);
-		}
+		JPanel actionPanel = createActionPanel();
 		// centerPanel 내부 배치
 		bottomContentPanel.add(filePanel, BorderLayout.NORTH);
 		bottomContentPanel.add(commentPanel, BorderLayout.CENTER);
@@ -220,7 +157,67 @@ public class PostViewGUI extends JFrame implements ActionListener {
 		currentPost = dao.getPostById(postId);	// 게시글 정보 가져오기
 	}
 	
-	// 파일 다운로드 
+	// 비밀글 열람 확인
+	private boolean checkReadPermission() {
+		if (currentPost != null && currentPost.isSecret() ) {
+			int currentUserId = UserSession.getInstance().getUser().getUserId();
+			String roleStr = UserSession.getInstance().getUser().getRole();
+			TableUsersRole userRole = TableUsersRole.fromDbRole(roleStr);
+			if (currentPost.getUserId() != currentUserId && userRole != TableUsersRole.ADMIN) {
+				JOptionPane.showMessageDialog(this, "비밀글은 작성자와 관리자만 볼 수 있습니다.", "열람 불가", JOptionPane.WARNING_MESSAGE);
+				dispose();
+				(new BoardGUI(currentBoard)).setVisible(true);
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	// 게시글 헤더
+	private JPanel createInfoPanel() {
+		JPanel infoPanel = new JPanel(new BorderLayout());
+		infoPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
+		lblTitle = new JLabel(" " + currentPost.getTitle());
+		lblTitle.setBorder(new EmptyBorder(5, 0, 5, 0));
+		JPanel subInfoPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		TableUsersDAO userDAO = new TableUsersDAO();
+		TableUsersDTO writer = userDAO.getUserById(currentPost.getUserId());
+		String writerName = (writer != null) ? writer.getNickname() : "알수없음";
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		String dateStr = sdf.format(currentPost.getCreatedAt());
+		lblWriter = new JLabel("작성자 : " + writerName + " | ");
+		lblDate = new JLabel("작성일 : " + dateStr + " | ");
+		lblViewCount = new JLabel("조회 : " + currentPost.getViewCount());
+		subInfoPanel.add(lblWriter);
+		subInfoPanel.add(lblDate);
+		subInfoPanel.add(lblViewCount);
+		infoPanel.add(lblTitle, BorderLayout.CENTER);
+		infoPanel.add(subInfoPanel, BorderLayout.SOUTH);
+		return infoPanel;
+	}
+	
+	// 첨부파일 Panel
+	private JPanel createFilePanel() {
+		JPanel filePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		filePanel.setBorder(BorderFactory.createTitledBorder("첨부파일"));
+		TableAttachmentsDAO attachDAO = new TableAttachmentsDAO();
+		ArrayList<TableAttachmentsDTO> fileList = attachDAO.getAttachmentsByPostId(postId);
+		if (fileList != null && !fileList.isEmpty()) {
+			attachedFile = fileList.get(0);
+			long fileSizeKB = attachedFile.getFileSize() / 1024;
+			if (fileSizeKB == 0 && attachedFile.getFileSize() > 0) fileSizeKB = 1;
+			lblFile = new JLabel(attachedFile.getOriginName() + " (" + fileSizeKB + " KB");
+			btndownload = new JButton("다운로드");
+			btndownload.addActionListener(this);
+			filePanel.add(lblFile);
+			filePanel.add(btndownload);
+		} else {
+			filePanel.add(new JLabel("첨부된 파일이 없습니다"));
+		}
+		return filePanel;
+	}
+	
+	// 첨부파일 다운로드 
 	private void downloadFile() {
 		if (attachedFile == null) return;
 		JFileChooser fileChooser = new JFileChooser();
@@ -243,14 +240,57 @@ public class PostViewGUI extends JFrame implements ActionListener {
 		}
 	}
 	
+	// 댓글 Panel
+	private JPanel createCommentPanel() {
+		JPanel commentPanel = new JPanel(new BorderLayout());
+		commentPanel.setBorder(BorderFactory.createTitledBorder("댓글"));
+		commentListPanel = new JPanel();
+		commentListPanel.add(new JLabel("댓글 목록 공간"));
+		JScrollPane commentScroll = new JScrollPane(commentListPanel);
+		commentScroll.setPreferredSize(new java.awt.Dimension(0, 150));
+		JPanel commentInputPanel = new JPanel(new BorderLayout());
+		txtCommentInput = new JTextArea(3, 50);
+		btncommentadd = new JButton("등록");
+		btncommentadd.addActionListener(this);
+		commentInputPanel.add(new JScrollPane(txtCommentInput), BorderLayout.CENTER);
+		commentInputPanel.add(btncommentadd, BorderLayout.EAST);
+		
+		return commentPanel;
+	}
+	
+	// 버튼(수정/목록/삭제) Panel
+	private JPanel createActionPanel() {
+		JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		btnlist = new JButton("목록");
+		btnlist.addActionListener(this);
+		actionPanel.add(btnlist);
+		int currentUserId = UserSession.getInstance().getUser().getUserId();
+		String roleStr = UserSession.getInstance().getUser().getRole();
+		boolean isAdmin = "admin".equalsIgnoreCase(roleStr);
+		if (currentPost.getUserId() == currentUserId || isAdmin) {
+			btnupdate = new JButton("수정");
+			btndelete = new JButton("삭제");
+			btnupdate.addActionListener(this);
+			btndelete.addActionListener(this);
+			actionPanel.add(btnupdate);
+			actionPanel.add(btndelete);
+		}
+		return actionPanel;
+	}
+	
+	// 게시글 삭제처리
 	private void deletePost() {
 		int choice = JOptionPane.showConfirmDialog(this, "정말로 해당 게시글을 삭제하시겠습니까?", "삭제 확인", JOptionPane.YES_NO_OPTION);
 		if (choice == JOptionPane.YES_OPTION) {
-			JOptionPane.showMessageDialog(this, "게시글이 삭제되었습니다.");
-			setVisible(false);
-			(new BoardGUI(currentBoard)).setVisible(true);
-		} else {
-			JOptionPane.showMessageDialog(this, "삭제실패");
+			TablePostsDAO dao = new TablePostsDAO();
+			int result = dao.deletePost(postId);
+			if (result > 0) {
+				JOptionPane.showMessageDialog(this, "게시글이 삭제되었습니다.");
+				setVisible(false);
+				(new BoardGUI(currentBoard)).setVisible(true);
+			} else {
+				JOptionPane.showMessageDialog(this, "삭제실패");
+			}
 		}
 	}
 	
