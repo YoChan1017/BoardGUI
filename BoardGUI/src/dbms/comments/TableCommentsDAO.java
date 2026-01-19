@@ -16,7 +16,7 @@ public class TableCommentsDAO {
 	// 댓글 작성(INSERT)
 	public int insertComment(TableCommentsDTO comment) {
 		int result = 0;
-		String sql = "INSERT INT comments (post_id, user_id, content, is_secret) VALUES (?, ?, ?, ?)";
+		String sql = "INSERT INTO comments (post_id, user_id, content, is_secret) VALUES (?, ?, ?, ?)";
 		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setInt(1, comment.getPostId());
 			pstmt.setInt(2, comment.getUserId());

@@ -51,4 +51,5 @@ java.sql.SQLSyntaxErrorException: (conn=804) You have an error in your SQL synta
 	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:90)
 	
 	
-	> 
+	> TableCommentsDAO 클래스 파일에서 insertComment 메서드의 SQL 문자열 수정 (INT를 INTO 오타 수정)
+	: String sql = "INSERT INT comments (post_id, user_id, content, is_secret) VALUES (?, ?, ?, ?)"; > String sql = "INSERT INTO comments (post_id, user_id, content, is_secret) VALUES (?, ?, ?, ?)";
