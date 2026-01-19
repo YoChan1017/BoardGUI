@@ -13,7 +13,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -49,6 +51,7 @@ public class PostViewGUI extends JFrame implements ActionListener {
 	private JLabel lblTitle, lblWriter, lblDate, lblViewCount, lblFile;
 	private JTextArea txtContent, txtCommentInput;
 	private JPanel commentListPanel;
+	private JCheckBox chkCommentSecret;
 	private JButton btnmain, btnuser, btnlogout, btnexit, btndownload, btnlist, btnupdate, btndelete, btncommentadd;
 	
 	// 생성자
@@ -146,6 +149,9 @@ public class PostViewGUI extends JFrame implements ActionListener {
 		add(topPanel, BorderLayout.NORTH);
 		add(centerPanel, BorderLayout.CENTER);
 		add(bottomPanel, BorderLayout.SOUTH);
+		
+		loadComments();
+		
 		setLocationRelativeTo(null);
 	}
 	
@@ -244,18 +250,41 @@ public class PostViewGUI extends JFrame implements ActionListener {
 	private JPanel createCommentPanel() {
 		JPanel commentPanel = new JPanel(new BorderLayout());
 		commentPanel.setBorder(BorderFactory.createTitledBorder("댓글"));
+		// 댓글 목록 영역
 		commentListPanel = new JPanel();
-		commentListPanel.add(new JLabel("댓글 목록 공간"));
+		commentListPanel.setLayout(new BoxLayout(commentListPanel, BoxLayout.Y_AXIS)); // 수직 나열
+		commentListPanel.setBackground(Color.WHITE);
 		JScrollPane commentScroll = new JScrollPane(commentListPanel);
-		commentScroll.setPreferredSize(new java.awt.Dimension(0, 150));
+		commentScroll.setPreferredSize(new java.awt.Dimension(0, 200));
+		commentScroll.getVerticalScrollBar().setUnitIncrement(16); // scroll 속도
+		// 댓글 입력 영역
 		JPanel commentInputPanel = new JPanel(new BorderLayout());
+		commentInputPanel.setBorder(new EmptyBorder(5, 0, 5, 0));
 		txtCommentInput = new JTextArea(3, 50);
+		txtCommentInput.setLineWrap(true);
+		// 댓글 입력 버튼 + 비밀댓글 체크
+		JPanel inputRightPanel = new JPanel(new BorderLayout());
+		chkCommentSecret = new JCheckBox("비밀");
 		btncommentadd = new JButton("등록");
 		btncommentadd.addActionListener(this);
+		inputRightPanel.add(chkCommentSecret, BorderLayout.NORTH);
+		inputRightPanel.add(btncommentadd, BorderLayout.CENTER);
 		commentInputPanel.add(new JScrollPane(txtCommentInput), BorderLayout.CENTER);
 		commentInputPanel.add(btncommentadd, BorderLayout.EAST);
+		commentPanel.add(commentScroll, BorderLayout.CENTER);
+		commentPanel.add(commentInputPanel, BorderLayout.SOUTH);
 		
 		return commentPanel;
+	}
+	
+	// 댓글 목록 불러오기
+	private void loadComments() {
+		
+	}
+	
+	// 댓글 등록
+	private void addComment() {
+		
 	}
 	
 	// 버튼(수정/목록/삭제) Panel
@@ -337,7 +366,7 @@ public class PostViewGUI extends JFrame implements ActionListener {
 			
 		} else if(event.getSource() == btncommentadd) {
 			// 댓글 등록
-			
+			addComment();
 		}
 	}
 
