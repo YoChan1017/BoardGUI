@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -259,22 +260,24 @@ public class PostViewGUI extends JFrame implements ActionListener {
 		commentListPanel.setLayout(new BoxLayout(commentListPanel, BoxLayout.Y_AXIS)); // 수직 나열
 		commentListPanel.setBackground(Color.WHITE);
 		JScrollPane commentScroll = new JScrollPane(commentListPanel);
-		commentScroll.setPreferredSize(new java.awt.Dimension(0, 200));
+		commentScroll.setPreferredSize(new Dimension(0, 150));
 		commentScroll.getVerticalScrollBar().setUnitIncrement(16); // scroll 속도
 		// 댓글 입력 영역
 		JPanel commentInputPanel = new JPanel(new BorderLayout());
 		commentInputPanel.setBorder(new EmptyBorder(5, 0, 5, 0));
 		txtCommentInput = new JTextArea(3, 50);
 		txtCommentInput.setLineWrap(true);
+		JScrollPane inputScroll = new JScrollPane(txtCommentInput);
 		// 댓글 입력 버튼 + 비밀댓글 체크
 		JPanel inputRightPanel = new JPanel(new BorderLayout());
 		chkCommentSecret = new JCheckBox("비밀");
+		chkCommentSecret.setHorizontalAlignment(SwingConstants.CENTER);
 		btncommentadd = new JButton("등록");
 		btncommentadd.addActionListener(this);
 		inputRightPanel.add(chkCommentSecret, BorderLayout.NORTH);
 		inputRightPanel.add(btncommentadd, BorderLayout.CENTER);
-		commentInputPanel.add(new JScrollPane(txtCommentInput), BorderLayout.CENTER);
-		commentInputPanel.add(btncommentadd, BorderLayout.EAST);
+		commentInputPanel.add(inputScroll, BorderLayout.CENTER);
+		commentInputPanel.add(inputRightPanel, BorderLayout.EAST);
 		commentPanel.add(commentScroll, BorderLayout.CENTER);
 		commentPanel.add(commentInputPanel, BorderLayout.SOUTH);
 		
