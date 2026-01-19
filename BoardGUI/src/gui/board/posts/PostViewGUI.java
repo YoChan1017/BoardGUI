@@ -2,6 +2,7 @@ package gui.board.posts;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,11 +26,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
 
 import dbms.StorageSetup;
 import dbms.attachments.TableAttachmentsDAO;
 import dbms.attachments.TableAttachmentsDTO;
 import dbms.boards.TableBoardsDTO;
+import dbms.comments.TableCommentsDAO;
+import dbms.comments.TableCommentsDTO;
 import dbms.posts.TablePostsDAO;
 import dbms.posts.TablePostsDTO;
 import dbms.users.TableUsersDAO;
@@ -182,7 +186,7 @@ public class PostViewGUI extends JFrame implements ActionListener {
 	// 게시글 헤더
 	private JPanel createInfoPanel() {
 		JPanel infoPanel = new JPanel(new BorderLayout());
-		infoPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
+		infoPanel.setBorder(new MatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
 		lblTitle = new JLabel(" " + currentPost.getTitle());
 		lblTitle.setBorder(new EmptyBorder(5, 0, 5, 0));
 		JPanel subInfoPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -279,12 +283,79 @@ public class PostViewGUI extends JFrame implements ActionListener {
 	
 	// 댓글 목록 불러오기
 	private void loadComments() {
-		
+		commentListPanel.removeAll();
+		TableCommentsDAO commentDAO = new TableCommentsDAO();
+		TableUsersDAO userDAO = new TableUsersDAO();
+		ArrayList<TableCommentsDTO> list = commentDAO.getCommentsByPostId(postId);
+		int currentUserId = UserSession.getInstance().getUser().getUserId();
+		String roleStr = UserSession.getInstance().getUser().getRole();
+		boolean isAdmin = "admin".equalsIgnoreCase(roleStr);
+		int postWriterId = currentPost.getUserId();
+		if (list != null) {
+			for (TableCommentsDTO c : list) {
+				// 개별 댓글 Panel
+				JPanel rowPanel = new JPanel(new BorderLayout());
+				rowPanel.setBorder(new MatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
+				rowPanel.setBackground(Color.WHITE);
+				rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
+				// 닉네임 조회
+				TableUsersDTO commentWriter = userDAO.getUserById(c.getUserId());
+				String writerName = (commentWriter != null) ? commentWriter.getNickname() : "(알수없음)";
+				SimpleDateFormat sdf = new SimpleDateFormat("MM-dd HH:mm");
+				// 작성자 + 날짜
+				String headerText = "<html><b>" + writerName + "</b><font color='gray' size='2'>(" + sdf.format(c.getCreatedAt()) + ")</font></html>";
+				JLabel lblHeader = new JLabel(headerText);
+				lblHeader.setBorder(new EmptyBorder(5, 5, 2, 5));
+				// 내용
+				String contentText = c.getContent();
+				JLabel lblContent = new JLabel();
+				lblContent.setBorder(new EmptyBorder(0, 10, 5, 5));
+				// 삭제된 댓글 처리
+				if (c.isDeleted()) {
+					lblContent.setText("<html><font color='gray'><i>삭제된 댓글입니다.</i></font></html>");
+				} else if (c.isSecret()) { // 비밀 댓글 처리 > 작성자와 관리자만 볼 수 있음
+					if (c.getUserId() == currentUserId || currentUserId == postWriterId || isAdmin) {
+						lblContent.setText("<html><font color='red'>🔒</font> " + contentText + "</html>");
+					} else {
+						lblContent.setText("<html><font color='red'>🔒 비밀 댓글입니다.</font></html>");
+					}
+				} else { // 일반 댓글 처리
+					lblContent.setText(contentText);
+				}
+				rowPanel.add(lblHeader, BorderLayout.NORTH);
+				rowPanel.add(lblContent, BorderLayout.CENTER);
+				
+				commentListPanel.add(rowPanel);
+			}
+		}
+		// 화면 갱신
+		commentListPanel.revalidate();
+		commentListPanel.repaint();
 	}
 	
 	// 댓글 등록
 	private void addComment() {
+		String content = txtCommentInput.getText().trim();
+		if (content.isEmpty()) {
+			JOptionPane.showMessageDialog(this, "댓글 내용을 입력해주세요.");
+			return;
+		}
 		
+		TableCommentsDTO newComment = new TableCommentsDTO();
+		newComment.setPostId(postId);
+		newComment.setUserId(UserSession.getInstance().getUser().getUserId());
+		newComment.setContent(content);
+		newComment.setSecret(chkCommentSecret.isSelected());
+		
+		TableCommentsDAO dao = new TableCommentsDAO();
+		int result = dao.insertComment(newComment);
+		if (result > 0) {
+			txtCommentInput.setText("");
+			chkCommentSecret.setSelected(false);
+			loadComments(); // 등록 후 새로고침
+		} else {
+			JOptionPane.showMessageDialog(this, "댓글 등록 실패", "등록 오류", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 	
 	// 버튼(수정/목록/삭제) Panel
