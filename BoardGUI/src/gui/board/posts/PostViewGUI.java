@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -169,15 +170,13 @@ public class PostViewGUI extends JFrame implements ActionListener {
 	}
 	
 	// 비밀글 열람 확인
-	private boolean checkReadPermission() {
+	public boolean checkReadPermission() {
 		if (currentPost != null && currentPost.isSecret() ) {
 			int currentUserId = UserSession.getInstance().getUser().getUserId();
 			String roleStr = UserSession.getInstance().getUser().getRole();
 			TableUsersRole userRole = TableUsersRole.fromDbRole(roleStr);
 			if (currentPost.getUserId() != currentUserId && userRole != TableUsersRole.ADMIN) {
 				JOptionPane.showMessageDialog(this, "비밀글은 작성자와 관리자만 볼 수 있습니다.", "열람 불가", JOptionPane.WARNING_MESSAGE);
-				dispose();
-				(new BoardGUI(currentBoard)).setVisible(true);
 				return false;
 			}
 		}
@@ -300,7 +299,10 @@ public class PostViewGUI extends JFrame implements ActionListener {
 				JPanel rowPanel = new JPanel(new BorderLayout());
 				rowPanel.setBorder(new MatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
 				rowPanel.setBackground(Color.WHITE);
-				rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
+				// Header Panel
+				JPanel headerPanel = new JPanel(new BorderLayout());
+				headerPanel.setBackground(Color.WHITE);
+				headerPanel.setBorder(new EmptyBorder(5, 5, 2, 5));
 				// 닉네임 조회
 				TableUsersDTO commentWriter = userDAO.getUserById(c.getUserId());
 				String writerName = (commentWriter != null) ? commentWriter.getNickname() : "(알수없음)";
@@ -308,7 +310,33 @@ public class PostViewGUI extends JFrame implements ActionListener {
 				// 작성자 + 날짜
 				String headerText = "<html><b>" + writerName + "</b><font color='gray' size='2'>(" + sdf.format(c.getCreatedAt()) + ")</font></html>";
 				JLabel lblHeader = new JLabel(headerText);
-				lblHeader.setBorder(new EmptyBorder(5, 5, 2, 5));
+				headerPanel.add(lblHeader, BorderLayout.CENTER);
+				
+				JPanel headerRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+				headerRightPanel.setBackground(Color.WHITE);
+				// 댓글 삭제 버튼
+				if (!c.isDeleted() && (c.getUserId() == currentUserId || isAdmin)) {
+					JButton btndel = new JButton("댓글 삭제");
+					btndel.setMargin(new Insets(0, 2, 0, 2));
+					btndel.setFocusable(false);
+					btndel.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							int choice = JOptionPane.showConfirmDialog(PostViewGUI.this, "댓글을 삭제하시겠습니까?", "삭제 확인", JOptionPane.YES_NO_OPTION);
+							if (choice == JOptionPane.YES_OPTION) {
+								int result = commentDAO.deleteComment(c.getCommentId());
+								if (result > 0) {
+									loadComments();
+								} else {
+									JOptionPane.showMessageDialog(PostViewGUI.this, "댓글 삭제 실패");
+								}
+							}
+						}
+					});
+					headerRightPanel.add(btndel);
+				}
+				headerPanel.add(headerRightPanel, BorderLayout.EAST);
+				
 				// 내용
 				String contentText = c.getContent();
 				JLabel lblContent = new JLabel();
