@@ -1,29 +1,257 @@
 package gui.board.posts;
 
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+
+import dbms.StorageSetup;
+import dbms.attachments.TableAttachmentsDAO;
+import dbms.attachments.TableAttachmentsDTO;
+import dbms.boards.TableBoardsDTO;
+import dbms.users.TableUsersRole;
+import gui.DetailsGUI;
+import gui.LoginGUI;
+import gui.MainGUI;
+import gui.board.boards.BoardGUI;
+import session.UserSession;
 
 public class PostEditGUI extends JFrame implements ActionListener {
 	
 	// PostWriteGUI와 비슷하게 작성
 	// 글 작성과 비슷하지만 수정하는 글 내용을 담고 있어야함
-	// 글 등록 버튼 이름을 수정완료로 변경 > 수정완료 눌렀을 때 YES_NO 알림으로 한번 더 확인
+	// 기존글에서 수정된 글로 덮어씌우기
+	// 수정완료 눌렀을 때 YES_NO 알림으로 한번 더 확인 후 저장
 	
 	// 필드
+	private TableBoardsDTO currentBoard;
+	private JTextField txtTitle;
+	private JTextArea txtContent;
+	private JCheckBox chkSecret, chkNotice;
+	private JLabel lblFileName;
+	private File selectedFile;
+	private JButton btnmain, btnuser, btnlogout, btnexit, btnedit, btncancel, btnback, btnFile;
+	private static final long MAX_FILE_SIZE = 30 * 1024 * 1024; // 파일 용량 제한 (30MB)
+	
 	
 	// 생성자
 	// 게시글 수정 GUI
-	public PostEditGUI() {
+	public PostEditGUI(TableBoardsDTO boardInfo) {
+		this.currentBoard = boardInfo;
 		
+		setTitle(currentBoard.getName() + " - 게시판 글 작성");
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setSize(800, 600);
+		
+		// 현재 GUI화면 진입 시 로그인 체크 여부
+		if (!UserSession.getInstance().isLoggedIn()) {
+			// 현재 생성자를 종료 후 로그인 화면으로 이동
+			JOptionPane.showMessageDialog(this, "로그인을 먼저 해주세요.", "접근 제한", JOptionPane.WARNING_MESSAGE);	
+			dispose();
+			(new LoginGUI()).setVisible(true);
+			return;
+		}
+		
+		JPanel topPanel = new JPanel();
+		JPanel centerPanel = new JPanel(new BorderLayout());
+		JPanel bottomPanel = new JPanel();
+		
+		// 상단(topPanel) > 게시판 이름 + 현재상태(글작성) 표시
+		JLabel lblTitle = new JLabel("[" + currentBoard.getName() + "] 글 수정");
+		lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
+		topPanel.add(lblTitle);
+		
+		// 중앙(centerPanel) > 제목작성 + 내용작성 + 옵션체크 + 버튼생성
+		// 제목작성 Panel
+		JPanel titlePanel = new JPanel(new BorderLayout());
+		titlePanel.add(new JLabel("제 목 : "), BorderLayout.WEST);
+		txtTitle = new JTextField();
+		titlePanel.add(txtTitle, BorderLayout.CENTER);
+		// 내용작성 Panel
+		txtContent = new JTextArea();
+		txtContent.setLineWrap(true); // 자동 줄바꿈
+		JScrollPane scrollPane = new JScrollPane(txtContent); // 스크롤
+		// 옵션체크 + 버튼생성 Panel
+		JPanel optionsPanel = new JPanel(new BorderLayout());
+		JPanel leftOptionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		chkSecret = new JCheckBox("비밀글");	// 게시판 코드가 qna(건의사항)일 때만 활성화
+		if (!"qna".equalsIgnoreCase(currentBoard.getCode())) {
+			chkSecret.setEnabled(false);
+		}
+		chkNotice = new JCheckBox("공지글"); // 관리자가 작성할 때만 활성화
+		String roleStr = UserSession.getInstance().getUser().getRole();
+		TableUsersRole userRole = TableUsersRole.fromDbRole(roleStr);
+		if (userRole != TableUsersRole.ADMIN) {
+			chkNotice.setEnabled(false);
+		}
+		btnFile = new JButton("파일 첨부");
+		btnFile.addActionListener(this);
+		lblFileName = new JLabel("선택된 파일 없음");
+		leftOptionPanel.add(chkSecret);
+		leftOptionPanel.add(chkNotice);
+		leftOptionPanel.add(btnFile);
+		leftOptionPanel.add(lblFileName);
+		JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		btnedit = new JButton("글 수정");
+		btnedit.addActionListener(this);
+		btncancel = new JButton("작성취소");
+		btncancel.addActionListener(this);
+		btnback = new JButton("뒤로가기");
+		btnback.addActionListener(this);
+		rightButtonPanel.add(btnedit);
+		rightButtonPanel.add(btncancel);
+		rightButtonPanel.add(btnback);
+		optionsPanel.add(leftOptionPanel, BorderLayout.WEST);
+		optionsPanel.add(rightButtonPanel, BorderLayout.EAST);
+		// centerPanel 내부 배치
+		centerPanel.add(titlePanel, BorderLayout.NORTH); 	// 제목작성
+		centerPanel.add(scrollPane, BorderLayout.CENTER); 	// 내용작성
+		centerPanel.add(optionsPanel, BorderLayout.SOUTH);	// 옵션체크 + 버튼		
+		
+		// 하단(bottomPanel)
+		btnmain = new JButton("HOME");
+		btnmain.addActionListener(this);
+		btnuser = new JButton("내 정보");
+		btnuser.addActionListener(this);
+		btnlogout = new JButton("로그아웃");
+		btnlogout.addActionListener(this);
+		btnexit = new JButton("종료");
+		btnexit.addActionListener(this);
+		bottomPanel.add(btnmain);
+		bottomPanel.add(btnuser);
+		bottomPanel.add(btnlogout);
+		bottomPanel.add(btnexit);
+			
+		// 상단, 중단, 하단 Panel 배치
+		add(topPanel, BorderLayout.NORTH);
+		add(centerPanel, BorderLayout.CENTER);
+		add(bottomPanel, BorderLayout.SOUTH);
+		
+		setLocationRelativeTo(null);
 	}
 	
 	// 메서드
+	// 수정할 게시글 정보 불러와서 표시
+	private void savePost() {
+		
+	}
+	
+	// 게시글 수정 후 저장
+	private void editPost() {
+		
+	}
+	
+	// 파일 저장
+	private boolean saveAttachment(int postId, File file) {
+		String originName = file.getName();
+		// 파일명 중복 방지
+		String saveName = UUID.randomUUID().toString() + "_" +originName;
+		String ext = "";
+		int dotIndex = originName.lastIndexOf('.');
+		if (dotIndex > 0) {
+			ext = originName.substring(dotIndex + 1);
+		}
+		long fileSize = file.length();
+			
+		// 파일 복사 = SAVE_DIR 경로
+		File destFile = new File(StorageSetup.SAVE_DIR + saveName);
+		try {
+			Files.copy(file.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		// 첨부파일 정보 DB 저장
+		TableAttachmentsDTO attachDto = new TableAttachmentsDTO(postId, originName, saveName, StorageSetup.SAVE_DIR, fileSize, ext);
+		TableAttachmentsDAO attachDao = new TableAttachmentsDAO();
+		int result = attachDao.insertAttachment(attachDto);
+		return result > 0;
+	}
+	
+	// 입력 필드 초기화
+	private void reset() {
+		txtTitle.setText("");					// 제목
+		txtContent.setText("");					// 내용
+		chkSecret.setSelected(false);			// 비밀글 여부
+		chkNotice.setSelected(false);			// 공지글 여부
+		selectedFile = null;					// 첨부파일 초기화
+		lblFileName.setText("선택된 파일 없음");	// 첨부파일 상태여부
+	}
 	
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		
+	public void actionPerformed(ActionEvent event) {
+		if(event.getSource() == btnmain) {
+			// 로그인 세션 보유한채로 새로고침
+			setVisible(false);
+			(new MainGUI()).setVisible(true);		
+			
+		} else if(event.getSource() == btnuser) {
+			// 로그인 세션 보유한채로 내 정보화면으로 이동
+			setVisible(false);					
+			(new DetailsGUI()).setVisible(true);
+			
+		} else if(event.getSource() == btnlogout) {
+			// 세션 제거 추가 - 로그아웃 처리
+			UserSession.getInstance().logout();
+			JOptionPane.showMessageDialog(this, "로그아웃 되었습니다.");
+			// 로그아웃 후 로그인으로 다시 이동
+			setVisible(false);						
+			(new LoginGUI()).setVisible(true);
+			
+		} else if(event.getSource() == btnexit) {
+			// 세션 제거 추가 - 로그아웃 처리
+			// 프로그램 종료로 세션 자동 소멸
+			System.exit(0);
+			
+		} else if(event.getSource() == btnedit) {
+			// 수정된 게시글 업로드
+			int choice = JOptionPane.showConfirmDialog(this,  "게시글을 등록하시겠습니까?", "등록 확인", JOptionPane.YES_NO_OPTION);
+			if (choice == JOptionPane.YES_OPTION) {
+				editPost();
+			}
+			
+		} else if(event.getSource() == btncancel) {
+			// 작성한 글 취소(지우기)
+			reset();
+			
+		} else if(event.getSource() == btnback) {
+			// 작성중인 글 취소하고 전 화면(BoardGUI)로 돌아가기
+			setVisible(false);
+			(new BoardGUI(currentBoard)).setVisible(true);
+			
+		} else if(event.getSource() == btnFile) {
+			// 파일 첨부
+			JFileChooser fileChooser = new JFileChooser();
+			int option = fileChooser.showOpenDialog(this);
+			if (option == JFileChooser.APPROVE_OPTION) {
+				File tempFile = fileChooser.getSelectedFile();
+				if (tempFile.length() > MAX_FILE_SIZE) {
+					JOptionPane.showMessageDialog(this, "파일 크기는 30MB를 초과할 수 없습니다.", "용량 초과", JOptionPane.WARNING_MESSAGE);
+					selectedFile = null;
+					lblFileName.setText("선택된 파일 없음");
+				} else {
+					selectedFile = tempFile;
+					lblFileName.setText(selectedFile.getName());
+				}
+			}
+		}
 	}
 	
 	public static void main(String[] args) {
