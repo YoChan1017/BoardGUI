@@ -84,7 +84,7 @@ public class PostViewGUI extends JFrame implements ActionListener {
 		loadPostData();
 		
 		// 비밀글 체크
-		if (!checkReadPermission()) {
+		if (!checkPermission()) {
 			return;
 		}
 		
@@ -159,6 +159,8 @@ public class PostViewGUI extends JFrame implements ActionListener {
 		loadComments();
 		
 		setLocationRelativeTo(null);
+		
+		setVisible(true);
 	}
 	
 	// 메서드
@@ -170,13 +172,21 @@ public class PostViewGUI extends JFrame implements ActionListener {
 	}
 	
 	// 비밀글 열람 확인
-	public boolean checkReadPermission() {
+	public boolean checkPermission() {
+		// 일단 게시글이 존재하는지
+		if (currentPost == null) {
+			JOptionPane.showMessageDialog(this, "삭제되거나 존재하지 않는 게시글입니다.", "열람 오류", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		// 비밀글에 대한 권한이 있는지
 		if (currentPost != null && currentPost.isSecret() ) {
 			int currentUserId = UserSession.getInstance().getUser().getUserId();
 			String roleStr = UserSession.getInstance().getUser().getRole();
 			TableUsersRole userRole = TableUsersRole.fromDbRole(roleStr);
 			if (currentPost.getUserId() != currentUserId && userRole != TableUsersRole.ADMIN) {
 				JOptionPane.showMessageDialog(this, "비밀글은 작성자와 관리자만 볼 수 있습니다.", "열람 불가", JOptionPane.WARNING_MESSAGE);
+				this.dispose();
+				(new BoardGUI(currentBoard)).setVisible(true);
 				return false;
 			}
 		}

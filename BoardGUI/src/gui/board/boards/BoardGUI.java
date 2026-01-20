@@ -153,7 +153,7 @@ public class BoardGUI extends JFrame implements ActionListener {
 						int postId = (int) postTable.getValueAt(row, 0);
 						
 						setVisible(false);
-						(new PostViewGUI(currentBoard, postId)).setVisible(true);
+						new PostViewGUI(currentBoard, postId);
 					}
 				}
 			}
