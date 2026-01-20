@@ -142,6 +142,6 @@ users > boards > posts > comments > attachments
 # DB 서버 생성 시 DB 계정 추가, 첨부파일 경로 변경할 것
 boarddb 전용 계정 추가, 첨부파일 경로 리눅스 서버 경로로 변경
 
-# 수정할 거
+# 수정, 오류, 기타
+자동완성 쓸 때 다시한번 확인!!!!
 BoardGUI > PostViewGUI 이동 시 비밀글 열람 오류 수정
-비밀댓글 작성 후 댓글(content)마지막 글자 하단에 배치되는 오류 수정

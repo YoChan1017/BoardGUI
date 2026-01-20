@@ -341,21 +341,37 @@ public class PostViewGUI extends JFrame implements ActionListener {
 				// 내용
 				String contentText = c.getContent();
 				JLabel lblContent = new JLabel();
-				lblContent.setBorder(new EmptyBorder(0, 10, 5, 5));
+				lblContent.setBorder(new EmptyBorder(0, 0, 5, 5));
+				
+				JPanel contentPanel = new JPanel(new BorderLayout(5, 0));
+				contentPanel.setBackground(Color.WHITE);
 				// 삭제된 댓글 처리
 				if (c.isDeleted()) {
 					lblContent.setText("<html><font color='gray'><i>삭제된 댓글입니다.</i></font></html>");
+					contentPanel.add(lblContent, BorderLayout.CENTER);
 				} else if (c.isSecret()) { // 비밀 댓글 처리 > 작성자와 관리자만 볼 수 있음
 					if (c.getUserId() == currentUserId || currentUserId == postWriterId || isAdmin) {
-						lblContent.setText("<html><font color='red'>🔒</font> " + contentText + "</html>");
+						JLabel lblLock = new JLabel("🔒");
+						lblLock.setForeground(Color.RED);
+						lblLock.setBorder(new EmptyBorder(0, 10, 5, 0));
+						lblContent.setText("<html>" + contentText + "</html>");
+						contentPanel.add(lblLock, BorderLayout.WEST);
+						contentPanel.add(lblContent, BorderLayout.CENTER);
 					} else {
-						lblContent.setText("<html><font color='red'>🔒 비밀 댓글입니다.</font></html>");
+						JLabel lblLock = new JLabel("🔒");
+						lblLock.setForeground(Color.RED);
+						lblLock.setBorder(new EmptyBorder(0, 10, 5, 0));
+						lblContent.setText("비밀 댓글입니다.");
+						contentPanel.add(lblLock, BorderLayout.WEST);
+						contentPanel.add(lblContent, BorderLayout.CENTER);
 					}
 				} else { // 일반 댓글 처리
+					lblContent.setBorder(new EmptyBorder(0, 10, 5, 0));
 					lblContent.setText(contentText);
+					contentPanel.add(lblContent, BorderLayout.CENTER);
 				}
 				rowPanel.add(headerPanel, BorderLayout.NORTH);
-				rowPanel.add(lblContent, BorderLayout.CENTER);
+				rowPanel.add(contentPanel, BorderLayout.CENTER);
 				
 				commentListPanel.add(rowPanel);
 			}
