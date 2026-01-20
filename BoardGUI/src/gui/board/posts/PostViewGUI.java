@@ -295,6 +295,7 @@ public class PostViewGUI extends JFrame implements ActionListener {
 		int postWriterId = currentPost.getUserId();
 		if (list != null) {
 			for (TableCommentsDTO c : list) {
+				// System.out.println("댓글작성자 ID : " + c.getUserId() + " / 내ID : " + currentUserId);
 				// 개별 댓글 Panel
 				JPanel rowPanel = new JPanel(new BorderLayout());
 				rowPanel.setBorder(new MatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
@@ -353,7 +354,7 @@ public class PostViewGUI extends JFrame implements ActionListener {
 				} else { // 일반 댓글 처리
 					lblContent.setText(contentText);
 				}
-				rowPanel.add(lblHeader, BorderLayout.NORTH);
+				rowPanel.add(headerPanel, BorderLayout.NORTH);
 				rowPanel.add(lblContent, BorderLayout.CENTER);
 				
 				commentListPanel.add(rowPanel);

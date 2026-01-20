@@ -93,15 +93,16 @@ public class TableCommentsDAO {
 			pstmt.setInt(1, postId);
 			try (ResultSet rs = pstmt.executeQuery()) {
 				while (rs.next()) {
-					TableCommentsDTO comment = new TableCommentsDTO(
-							rs.getInt("comment_id"),
-							rs.getInt("post_id"),
-							rs.getInt("user_id"),
-							rs.getString("content"),
-							rs.getBoolean("is_secret"),
-							rs.getBoolean("is_deleted"),
-							rs.getTimestamp("created_at")
-							);
+					TableCommentsDTO comment = new TableCommentsDTO();
+					
+					comment.setCommentId(rs.getInt("comment_id"));
+					comment.setPostId(rs.getInt("post_id"));
+					comment.setUserId(rs.getInt("user_id"));
+					comment.setContent(rs.getString("content"));
+					comment.setSecret(rs.getBoolean("is_secret"));
+					comment.setDeleted(rs.getBoolean("is_deleted"));
+					comment.setCreatedAt(rs.getTimestamp("created_at"));
+					
 					list.add(comment);
 				}
 			}
