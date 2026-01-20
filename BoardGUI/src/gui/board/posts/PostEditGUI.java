@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.UUID;
 
 import javax.swing.JButton;
@@ -26,6 +27,8 @@ import dbms.StorageSetup;
 import dbms.attachments.TableAttachmentsDAO;
 import dbms.attachments.TableAttachmentsDTO;
 import dbms.boards.TableBoardsDTO;
+import dbms.posts.TablePostsDAO;
+import dbms.posts.TablePostsDTO;
 import dbms.users.TableUsersRole;
 import gui.DetailsGUI;
 import gui.LoginGUI;
@@ -39,9 +42,13 @@ public class PostEditGUI extends JFrame implements ActionListener {
 	// 글 작성과 비슷하지만 수정하는 글 내용을 담고 있어야함
 	// 기존글에서 수정된 글로 덮어씌우기
 	// 수정완료 눌렀을 때 YES_NO 알림으로 한번 더 확인 후 저장
+	// 작성취소(초기화)시 원래 내용으로 복구
 	
 	// 필드
 	private TableBoardsDTO currentBoard;
+	private int postId; 							// 수정할 게시글 ID
+	private TablePostsDTO currentPost;				// 현재 게시글 정보
+	private TableAttachmentsDTO currentAttachment; 	// 현재 첨부파일 정보
 	private JTextField txtTitle;
 	private JTextArea txtContent;
 	private JCheckBox chkSecret, chkNotice;
@@ -144,13 +151,37 @@ public class PostEditGUI extends JFrame implements ActionListener {
 		add(centerPanel, BorderLayout.CENTER);
 		add(bottomPanel, BorderLayout.SOUTH);
 		
+		loadPostData();
+		
 		setLocationRelativeTo(null);
 	}
 	
 	// 메서드
 	// 수정할 게시글 정보 불러와서 표시
-	private void savePost() {
+	private void loadPostData() {
+		TablePostsDAO postDAO = new TablePostsDAO();
+		currentPost = postDAO.getPostById(postId);
 		
+		if (currentPost != null) {
+			txtTitle.setText(currentPost.getTitle());
+			txtContent.setText(currentPost.getContent());
+			chkSecret.setSelected(currentPost.isSecret());
+			chkNotice.setSelected(currentPost.isNotice());
+			
+			TableAttachmentsDAO attachDAO = new TableAttachmentsDAO();
+			ArrayList<TableAttachmentsDTO> list = attachDAO.getAttachmentsByPostId(postId);
+			if (list != null && !list.isEmpty()) {
+				currentAttachment = list.get(0);
+				lblFileName.setText(currentAttachment.getOriginName());
+			} else {
+				lblFileName.setText("선택된 파일 없음");
+			}
+			
+		} else {
+			JOptionPane.showMessageDialog(this, "해당 게시글 정보를 불러올 수 없습니다.", "수정 오류", JOptionPane.ERROR_MESSAGE);
+			setVisible(false);
+			(new BoardGUI(currentBoard)).setVisible(true);
+		}
 	}
 	
 	// 게시글 수정 후 저장
@@ -158,8 +189,22 @@ public class PostEditGUI extends JFrame implements ActionListener {
 		
 	}
 	
-	// 파일 저장
-	private boolean saveAttachment(int postId, File file) {
+	// 첨부파일 업데이트 (기존파일 제거 > 새로저장)
+	private boolean updateAttachment() {
+		TableAttachmentsDAO attachDAO = new TableAttachmentsDAO();
+		
+		if (currentAttachment != null) {
+			attachDAO.deleteAttachment(currentAttachment.getFiledId());
+			File oldFile = new File(StorageSetup.SAVE_DIR + currentAttachment.getSaveName());
+			if (oldFile.exists()) {
+				oldFile.delete();
+			}
+		}
+		return saveNewAttachment(postId, selectedFile);
+	}
+	
+	// 첨부파일 저장
+	private boolean saveNewAttachment(int postId, File file) {
 		String originName = file.getName();
 		// 파일명 중복 방지
 		String saveName = UUID.randomUUID().toString() + "_" +originName;
@@ -185,14 +230,10 @@ public class PostEditGUI extends JFrame implements ActionListener {
 		return result > 0;
 	}
 	
-	// 입력 필드 초기화
+	// 입력 필드 초기화 (원래 내용 복구)
 	private void reset() {
-		txtTitle.setText("");					// 제목
-		txtContent.setText("");					// 내용
-		chkSecret.setSelected(false);			// 비밀글 여부
-		chkNotice.setSelected(false);			// 공지글 여부
-		selectedFile = null;					// 첨부파일 초기화
-		lblFileName.setText("선택된 파일 없음");	// 첨부파일 상태여부
+		loadPostData();
+		selectedFile = null;
 	}
 	
 	@Override
@@ -222,7 +263,7 @@ public class PostEditGUI extends JFrame implements ActionListener {
 			
 		} else if(event.getSource() == btnedit) {
 			// 수정된 게시글 업로드
-			int choice = JOptionPane.showConfirmDialog(this,  "게시글을 등록하시겠습니까?", "등록 확인", JOptionPane.YES_NO_OPTION);
+			int choice = JOptionPane.showConfirmDialog(this,  "게시글을 수정하시겠습니까?", "수정 확인", JOptionPane.YES_NO_OPTION);
 			if (choice == JOptionPane.YES_OPTION) {
 				editPost();
 			}
@@ -248,7 +289,7 @@ public class PostEditGUI extends JFrame implements ActionListener {
 					lblFileName.setText("선택된 파일 없음");
 				} else {
 					selectedFile = tempFile;
-					lblFileName.setText(selectedFile.getName());
+					lblFileName.setText(selectedFile.getName() + "(변경됨)");
 				}
 			}
 		}

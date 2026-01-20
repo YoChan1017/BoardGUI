@@ -488,6 +488,8 @@ public class PostViewGUI extends JFrame implements ActionListener {
 			
 		} else if(event.getSource() == btnupdate) {
 			// 해당 게시글 수정 화면으로 이동
+			setVisible(false);
+			(new PostEditGUI(currentBoard)).setVisible(true);
 			
 		} else if(event.getSource() == btndownload) {
 			// 첨부파일 다운로드
