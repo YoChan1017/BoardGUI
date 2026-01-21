@@ -11,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 
 import dbms.boards.TableBoardsDAO;
 import dbms.boards.TableBoardsDTO;
@@ -19,8 +20,11 @@ import session.UserSession;
 
 public class MainGUI extends JFrame implements ActionListener{
 	
+	// 필드
+	private JPanel topPanel;
 	private JButton btnmain, btnuser, btnlogout, btnexit;
 	
+	// 생성자
 	public MainGUI() {
 		setTitle("MAIN");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -37,32 +41,17 @@ public class MainGUI extends JFrame implements ActionListener{
 			return;
 		}
 		
-		JPanel topPanel = new JPanel();
-		JPanel centerPanel = new JPanel();
+		topPanel = new JPanel();
+		JPanel centerPanel = new JPanel(new BorderLayout());
 		JPanel bottomPanel = new JPanel();
 		
 		// topPanel에 게시판 종류 버튼(추가될 때마다 표시해함(공지사항, 건의사항, 자유게시판, 이후 추가될때마다 표시))
 		// 눌렀을시 BoardGUI화면으로 이동되며 해당 게시판의 정보 표시
-		TableBoardsDAO boardDao = new TableBoardsDAO();
-		List<TableBoardsDTO> boardList = boardDao.getAllBoards();
-		if (boardList != null) {
-			for (TableBoardsDTO board : boardList) {
-				if (board.isActive()) { // 활성화된 게시판만 버튼 표시
-					JButton btnBoard = new JButton(board.getName());
-					btnBoard.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							setVisible(false);
-							new BoardGUI(board).setVisible(true);
-						}
-					});
-					topPanel.add(btnBoard);
-				}
-			}
-		}
+		updateBoardButtons();
 		
 		// centerPanel
-		// 접속중인 계정의 닉네임, 게시판별 최신 정보 등 표시
+		// 접속중인 계정의 닉네임, 게시판별 최신 정보(5~10개 정도의 최신 작성글) 등 표시
+		centerPanel.setBorder(new EmptyBorder(30, 50, 30, 50));
 		
 		// bottomPanel
 		btnmain = new JButton("HOME");
@@ -83,6 +72,33 @@ public class MainGUI extends JFrame implements ActionListener{
 		add(centerPanel, BorderLayout.CENTER);
 		add(bottomPanel, BorderLayout.SOUTH);
 		setLocationRelativeTo(null);
+	}
+	
+	// 메서드
+	// 게시판 버튼 생성/갱신
+	private void updateBoardButtons() {
+		topPanel.removeAll();
+		TableBoardsDAO boardDao = new TableBoardsDAO();
+		List<TableBoardsDTO> boardList = boardDao.getAllBoards();
+		
+		if (boardList != null) {
+			for (TableBoardsDTO board : boardList) {
+				// 활성화된 게시판만 버튼으로 생성
+				if (board.isActive()) {
+					JButton btnBoard = new JButton(board.getName());
+					btnBoard.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							setVisible(false);
+							new BoardGUI(board).setVisible(true);
+						}
+					});
+					topPanel.add(btnBoard);
+				}
+			}
+		}
+		topPanel.revalidate();
+		topPanel.repaint();
 	}
 	
 	@Override
