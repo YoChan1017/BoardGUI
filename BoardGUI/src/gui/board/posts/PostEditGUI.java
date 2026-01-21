@@ -60,10 +60,11 @@ public class PostEditGUI extends JFrame implements ActionListener {
 	
 	// 생성자
 	// 게시글 수정 GUI
-	public PostEditGUI(TableBoardsDTO boardInfo) {
+	public PostEditGUI(TableBoardsDTO boardInfo, int postId) {
 		this.currentBoard = boardInfo;
+		this.postId = postId;
 		
-		setTitle(currentBoard.getName() + " - 게시판 글 작성");
+		setTitle(currentBoard.getName() + " - 게시판 글 수정");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setSize(800, 600);
 		
@@ -118,7 +119,7 @@ public class PostEditGUI extends JFrame implements ActionListener {
 		JPanel rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		btnedit = new JButton("글 수정");
 		btnedit.addActionListener(this);
-		btncancel = new JButton("작성취소");
+		btncancel = new JButton("수정취소");
 		btncancel.addActionListener(this);
 		btnback = new JButton("뒤로가기");
 		btnback.addActionListener(this);
@@ -186,7 +187,46 @@ public class PostEditGUI extends JFrame implements ActionListener {
 	
 	// 게시글 수정 후 저장
 	private void editPost() {
+		String title = txtTitle.getText().trim();
+		String content = txtContent.getText().trim();
 		
+		// 게시글 제목 입력 확인
+		if (title.isEmpty()) {
+			JOptionPane.showMessageDialog(this, "제목을 입력해주세요.");
+			return;
+		}
+		// 게시글 내용 입력 확인
+		if (content.isEmpty()) {
+			JOptionPane.showMessageDialog(this, "내용을 입력해주세요.");
+			return;
+		}
+		// 첨부파일 용량 확인
+		if (selectedFile != null && selectedFile.length() > MAX_FILE_SIZE) {
+			JOptionPane.showMessageDialog(this, "파일 크기는 30MB를 초과할 수 없습니다.", "용량 초과", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		
+		// 게시글 정보 업데이트
+		currentPost.setTitle(title);
+		currentPost.setContent(content);
+		currentPost.setSecret(chkSecret.isSelected());
+		currentPost.setNotice(chkNotice.isSelected());
+		
+		TablePostsDAO postDAO = new TablePostsDAO();
+		int result = postDAO.updatePost(currentPost);
+		if (result > 0) {
+			if (selectedFile != null) {
+				boolean fileResult = updateAttachment();
+				if (!fileResult) {
+					JOptionPane.showMessageDialog(this, "게시글이 수정되었으나 파일 처리에 실패하였습니다.", "파일 오류", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+			JOptionPane.showMessageDialog(this, "게시글이 수정되었습니다.", "수정 완료", JOptionPane.INFORMATION_MESSAGE);
+			setVisible(false);
+			(new PostViewGUI(currentBoard, postId)).setVisible(true);
+		} else {
+			JOptionPane.showMessageDialog(this, "게시글 수정에 실패하였습니다.", "수정 실패", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 	
 	// 첨부파일 업데이트 (기존파일 제거 > 새로저장)
@@ -194,7 +234,7 @@ public class PostEditGUI extends JFrame implements ActionListener {
 		TableAttachmentsDAO attachDAO = new TableAttachmentsDAO();
 		
 		if (currentAttachment != null) {
-			attachDAO.deleteAttachment(currentAttachment.getFiledId());
+			attachDAO.deleteAttachment(currentAttachment.getFileId());
 			File oldFile = new File(StorageSetup.SAVE_DIR + currentAttachment.getSaveName());
 			if (oldFile.exists()) {
 				oldFile.delete();
@@ -275,7 +315,7 @@ public class PostEditGUI extends JFrame implements ActionListener {
 		} else if(event.getSource() == btnback) {
 			// 작성중인 글 취소하고 전 화면(BoardGUI)로 돌아가기
 			setVisible(false);
-			(new BoardGUI(currentBoard)).setVisible(true);
+			(new PostViewGUI(currentBoard, postId)).setVisible(true);
 			
 		} else if(event.getSource() == btnFile) {
 			// 파일 첨부

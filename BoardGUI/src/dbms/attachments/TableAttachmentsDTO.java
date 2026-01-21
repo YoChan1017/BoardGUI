@@ -41,7 +41,7 @@ public class TableAttachmentsDTO {
 	// Getters and Setters
 	// Getters > 값을 가져오는 메서드 get변수()
 	// Setters > 값을 설정하는 메서드 set변수(값)
-	public int getFiledId() { return fileId; }
+	public int getFileId() { return fileId; }
 	public void setFileId(int fileId) { this.fileId = fileId; }
 	
 	public int getPostId() { return postId; }
