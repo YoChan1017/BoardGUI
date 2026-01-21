@@ -157,7 +157,7 @@ public class MainGUI extends JFrame implements ActionListener{
 	}
 	
 	// 게시판의 최신 정보를 centerPanel load
-	private void getVerticalScrollBar() {
+	private void loadAllBoardsLatestData() {
 		
 	}
 	
