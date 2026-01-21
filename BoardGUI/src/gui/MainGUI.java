@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -9,20 +10,28 @@ import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import dbms.boards.TableBoardsDAO;
 import dbms.boards.TableBoardsDTO;
+import dbms.users.TableUsersDTO;
 import gui.board.boards.BoardGUI;
 import session.UserSession;
 
 public class MainGUI extends JFrame implements ActionListener{
 	
 	// 필드
-	private JPanel topPanel;
+	private JPanel topPanel, dashboardPanel;
 	private JButton btnmain, btnuser, btnlogout, btnexit;
+	
+	private static final int MAX_TOP_BUTTONS = 5;
 	
 	// 생성자
 	public MainGUI() {
@@ -41,7 +50,7 @@ public class MainGUI extends JFrame implements ActionListener{
 			return;
 		}
 		
-		topPanel = new JPanel();
+		topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		JPanel centerPanel = new JPanel(new BorderLayout());
 		JPanel bottomPanel = new JPanel();
 		
@@ -52,6 +61,21 @@ public class MainGUI extends JFrame implements ActionListener{
 		// centerPanel
 		// 접속중인 계정의 닉네임, 게시판별 최신 정보(5~10개 정도의 최신 작성글) 등 표시
 		centerPanel.setBorder(new EmptyBorder(30, 50, 30, 50));
+		// 상단 환영문구
+		TableUsersDTO user =UserSession.getInstance().getUser();
+		String nickname = (user != null) ? user.getNickname() : "게스트";
+		String role = (user != null) ? user.getRole() : "";
+		JLabel lblWelcome = new JLabel("<html><div style='text-align:center;'><font size='6'><b>" + nickname + "</b>님 환영합니다!</font><br><font size='3' color='gray'> 등급 : " + role + "</font></div></html>", SwingConstants.CENTER);
+		lblWelcome.setBorder(new EmptyBorder(0, 0, 20, 0));
+		centerPanel.add(lblWelcome, BorderLayout.NORTH);
+		// 게시판별 최신 정보 표시
+		dashboardPanel = new JPanel(new GridLayout(0, 2, 15, 15));
+		JScrollPane scrollPane = new JScrollPane(dashboardPanel);
+		scrollPane.setBorder(null);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(16); // 스크롤 속도
+		// 게시판 최신 데이터 로드
+		loadAllBoardsLatestData();
+		centerPanel.add(scrollPane, BorderLayout.CENTER);
 		
 		// bottomPanel
 		btnmain = new JButton("HOME");
@@ -82,23 +106,64 @@ public class MainGUI extends JFrame implements ActionListener{
 		List<TableBoardsDTO> boardList = boardDao.getAllBoards();
 		
 		if (boardList != null) {
-			for (TableBoardsDTO board : boardList) {
-				// 활성화된 게시판만 버튼으로 생성
-				if (board.isActive()) {
-					JButton btnBoard = new JButton(board.getName());
-					btnBoard.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							setVisible(false);
-							new BoardGUI(board).setVisible(true);
-						}
-					});
-					topPanel.add(btnBoard);
+			List<TableBoardsDTO> activeBoards = new ArrayList<>();
+			for (TableBoardsDTO b : boardList) {
+				if (b.isActive()) activeBoards.add(b);
+			}
+			
+			int size = activeBoards.size();
+			if (size <= MAX_TOP_BUTTONS) { // 버튼 개수가 제한 이하일 때
+				for (TableBoardsDTO board : activeBoards) {
+					addBoardButton(board);
+				} 
+			} else { // 버튼 개수가 제한 초과할 때
+				for (int i = 0; i < MAX_TOP_BUTTONS - 1; i++) {
+					addBoardButton(activeBoards.get(i));
 				}
+				
+				JButton btnMore = new JButton("...");
+				JPopupMenu popupMenu = new JPopupMenu();
+				
+				// 나머지 게시판버튼은 팝업 메뉴 아이템으로 추가
+				for (int i = MAX_TOP_BUTTONS - 1; i <size; i++) {
+					TableBoardsDTO hiddenBoard = activeBoards.get(i);
+					JMenuItem item = new JMenuItem(hiddenBoard.getName());
+					item.addActionListener(e -> {
+						setVisible(false);
+						new BoardGUI(hiddenBoard).setVisible(true);
+					});
+					popupMenu.add(item);
+				}
+				
+				btnMore.addActionListener(e -> {
+					popupMenu.show(btnMore, 0, btnMore.getHeight());
+				});
+				
+				topPanel.add(btnMore);
 			}
 		}
 		topPanel.revalidate();
 		topPanel.repaint();
+	}
+	
+	// 게시판 버튼 추가 헬퍼
+	private void addBoardButton(TableBoardsDTO board) {
+		JButton btn = new JButton(board.getName());
+		btn.addActionListener(e -> {
+			setVisible(false);
+			new BoardGUI(board).setVisible(true);
+		});
+		topPanel.add(btn);
+	}
+	
+	// 게시판의 최신 정보를 centerPanel load
+	private void getVerticalScrollBar() {
+		
+	}
+	
+	// 게시판 미니 테이블 Panel
+	private JPanel createMiniBoardPanel() {
+		
 	}
 	
 	@Override
