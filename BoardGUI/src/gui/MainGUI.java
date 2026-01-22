@@ -169,9 +169,22 @@ public class MainGUI extends JFrame implements ActionListener{
 		topPanel.add(btn);
 	}
 	
-	// 게시판의 최신 정보를 centerPanel load
+	// 게시판의 최신 정보를 centerPanel에 load
 	private void loadAllBoardsLatestData() {
-		
+		dashboardPanel.removeAll();
+		TableBoardsDAO boardDao = new TableBoardsDAO();
+		List<TableBoardsDTO> boardList = boardDao.getAllBoards();
+		if (boardList != null) {
+			TablePostsDAO postDao = new TablePostsDAO();
+			for (TableBoardsDTO board : boardList) {
+				if (!board.isActive()) continue; // 비활성 제외
+				// 각 게시판 미니 Panel
+				JPanel boardPanel = createMiniBoardPanel(board, postDao);
+				dashboardPanel.add(boardPanel);
+			}
+		}
+		dashboardPanel.revalidate();
+		dashboardPanel.repaint();
 	}
 	
 	// 게시판 미니 테이블 Panel
