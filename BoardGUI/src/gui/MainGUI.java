@@ -1,10 +1,16 @@
 package gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,13 +22,20 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 
 import dbms.boards.TableBoardsDAO;
 import dbms.boards.TableBoardsDTO;
+import dbms.posts.TablePostsDAO;
+import dbms.posts.TablePostsDTO;
 import dbms.users.TableUsersDTO;
 import gui.board.boards.BoardGUI;
+import gui.board.posts.PostViewGUI;
 import session.UserSession;
 
 public class MainGUI extends JFrame implements ActionListener{
@@ -162,8 +175,78 @@ public class MainGUI extends JFrame implements ActionListener{
 	}
 	
 	// 게시판 미니 테이블 Panel
-	private JPanel createMiniBoardPanel() {
+	private JPanel createMiniBoardPanel(TableBoardsDTO board, TablePostsDAO postDao) {
+		JPanel p = new JPanel(new BorderLayout());
+		p.setBorder(new TitledBorder(null, board.getName(), TitledBorder.LEADING, TitledBorder.TOP, new Font(null, Font.BOLD, 12), Color.DARK_GRAY));
+		p.setBackground(Color.WHITE);
+		p.setPreferredSize(new Dimension(300, 150));
 		
+		String[] colNames = {"제목", "작성일"};
+		DefaultTableModel model = new DefaultTableModel(colNames, 0) {
+			@Override
+			public boolean isCellEditable(int row, int column) { return false; }
+		};
+		JTable table = new JTable(model);
+		table.setRowHeight(20);
+		table.setShowGrid(false);
+		
+		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+		centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+		table.getColumn("작성일").setCellRenderer(centerRenderer);
+		table.getColumn("작성일").setPreferredWidth(80);
+		
+		// Data Load
+		ArrayList<TablePostsDTO> posts = postDao.getPostsByBoardId(board.getBoardId());
+		SimpleDateFormat sdf = new SimpleDateFormat("MM-dd");
+		if (posts != null && !posts.isEmpty()) {
+			int count = 0;
+			for (TablePostsDTO post : posts) {
+				if (count >= 5) break;
+				String title = post.getTitle();
+				if(post.isNotice()) title = "[공지] " + title;
+				if(post.isSecret()) title = "🔒 " + title;
+				
+				model.addRow(new Object[] { title, sdf.format(post.getCreatedAt()) });
+				count++;
+			}
+		} else {
+			model.addRow(new Object[] { "(게시글 없음)", "" });
+		}
+		
+		// 클릭 시 해당 글로 이동
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					int row = table.getSelectedRow();
+					if (row != -1 && posts != null && row < posts.size()) {
+						TablePostsDTO selectedPost = posts.get(row);
+						PostViewGUI view = new PostViewGUI(board, selectedPost.getPostId());
+						if (view.checkPermission()) {
+							setVisible(false);
+							view.setVisible(true);
+						} else {
+							view.dispose();
+						}
+					}
+				}
+			}
+			
+		});
+		p.add(new JScrollPane(table), BorderLayout.CENTER);
+		
+		// 해당 게시판 이동 버튼 
+		JButton btnMore = new JButton("더보기 > ");
+		btnMore.setBorderPainted(false);
+		btnMore.setContentAreaFilled(false);
+		btnMore.setHorizontalAlignment(SwingConstants.RIGHT);
+		btnMore.addActionListener(e -> {
+			setVisible(false);
+			new BoardGUI(board).setVisible(true);
+		});
+		p.add(btnMore, BorderLayout.SOUTH);
+		
+		return p;
 	}
 	
 	@Override
