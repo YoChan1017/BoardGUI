@@ -239,6 +239,11 @@ public class DetailsPostsGUI extends JFrame implements ActionListener {
 		}
 	}
 	
+	// 검색 기능
+	private void searchPosts() {
+		
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		if(event.getSource() == btnmain) {
@@ -266,6 +271,7 @@ public class DetailsPostsGUI extends JFrame implements ActionListener {
 			
 		} else if(event.getSource() == btnsearch) {
 			// 검색 버튼 기능 추가
+			searchPosts();
 			
 		} else if(event.getSource() == btndelete) {
 			// 글 삭제 기능 추가

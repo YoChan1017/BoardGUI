@@ -176,5 +176,47 @@ public class TablePostsDAO {
 		return list;
 	}
 	
+	// 게시글 검색
+	public ArrayList<TablePostsDTO> searchPosts(int boardId, String type, String keyword) {
+		ArrayList<TablePostsDTO> list = new ArrayList<>();
+		String sql = "";
+		if ("제목".equals(type)) {
+			sql = "SELECT * FROM posts WHERE board_id = ? AND title LIKE ? ORDER BY is_notice DESC, created_at DESC";
+		} else if ("내용".equals(type)) {
+			sql = "SELECT * FROM posts WHERE board_id = ? AND content LIKE ? ORDER BY is_notice DESC, created_at DESC";
+		} else if ("작성자".equals(type)) {
+			sql = "SELECT p.* FROM posts p JOIN users u ON p.user_id = u.user_id WHERE p.board_id = ? AND u.nickname LIKE ? ORDER BY p.is_notice DESC, p.created_at DESC";
+		} else {
+			return getPostsByBoardId(boardId);
+		}
+		
+		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setInt(1, boardId);
+			pstmt.setString(2, "%" + keyword + "%");
+			try (ResultSet rs = pstmt.executeQuery()) {
+				while (rs.next()) {
+					TablePostsDTO post = new TablePostsDTO(
+							rs.getInt("post_id"),
+							rs.getInt("board_id"),
+							rs.getInt("user_id"),
+							rs.getString("title"),
+							rs.getString("content"),
+							rs.getInt("view_count"),
+							rs.getTimestamp("created_at"),
+							rs.getTimestamp("updated_at"),
+							rs.getBoolean("is_notice"),
+							rs.getBoolean("is_secret"),
+							rs.getString("status")
+							);
+					list.add(post);
+				}
+			}
+		} catch (SQLException e) {
+			System.out.println("게시글 검색 실패 : " + e.getMessage());
+			e.printStackTrace();
+		}
+		return list;
+	}
+	
 	// 필요시 추가작성
 }

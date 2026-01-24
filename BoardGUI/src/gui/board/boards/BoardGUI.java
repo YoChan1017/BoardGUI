@@ -92,6 +92,7 @@ public class BoardGUI extends JFrame implements ActionListener {
 
 		// centerPanel - 검색 Panel 생성
 		JPanel functionPanel = new JPanel(new BorderLayout());
+		// centerPanel - 검색 버튼 생성
 		JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
 		String[] searchTypes = {"제목", "내용", "작성자"};
 		cbSearchType = new JComboBox<>(searchTypes);
@@ -166,7 +167,10 @@ public class BoardGUI extends JFrame implements ActionListener {
 		centerPanel.add(functionPanel, BorderLayout.NORTH); 		// centerPanel에서 상단(북쪽)에 functionPanel 배치
 		centerPanel.add(new JPanel(), BorderLayout.CENTER);
 		centerPanel.add(listContainerPanel, BorderLayout.CENTER); 	// centerPanel에서 중앙에 listContainerPanel 배치
-		loadPostList();	// 데이터 불러오기
+		
+		TablePostsDAO postDAO = new TablePostsDAO();
+		ArrayList<TablePostsDTO> allPosts = postDAO.getPostsByBoardId(currentBoard.getBoardId());
+		loadPostList(allPosts);	// 데이터 불러오기
 		
 		// 하단(bottomPanel)
 		btnmain = new JButton("HOME");
@@ -192,12 +196,10 @@ public class BoardGUI extends JFrame implements ActionListener {
 	
 	// 메서드
 	// 게시글 목록 불러오기
-	private void loadPostList() {
+	private void loadPostList(ArrayList<TablePostsDTO> postList) {
 		tableModel.setRowCount(0);
-		TablePostsDAO postDAO = new TablePostsDAO();
 		TableUsersDAO userDAO = new TableUsersDAO();
 		
-		ArrayList<TablePostsDTO> postList = postDAO.getPostsByBoardId(currentBoard.getBoardId());
 		if (postList != null) {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 			for (TablePostsDTO post : postList) {
@@ -221,6 +223,25 @@ public class BoardGUI extends JFrame implements ActionListener {
 				};
 				tableModel.addRow(rowData);
 			}
+		}
+	}
+	
+	// 게시글 검색
+	private void searchPosts() {
+		String type = (String) cbSearchType.getSelectedItem();
+		String keyword = txtSearch.getText().trim();
+		
+		if (keyword.isEmpty()) {
+			JOptionPane.showMessageDialog(this, "검색어를 입력해주세요.");
+			return;
+		}
+		
+		TablePostsDAO dao = new TablePostsDAO();
+		ArrayList<TablePostsDTO> searchResults = dao.searchPosts(currentBoard.getBoardId(), type, keyword);
+		loadPostList(searchResults);
+		
+		if (searchResults.isEmpty()) {
+			JOptionPane.showMessageDialog(this, "검색 결과가 없습니다.");
 		}
 	}
 	
@@ -252,6 +273,7 @@ public class BoardGUI extends JFrame implements ActionListener {
 			
 		} else if(event.getSource() == btnsearch) {
 			// 검색 버튼 기능 추가
+			searchPosts();
 			
 		} else if(event.getSource() == btnwrite) {
 			// 글 작성 버튼 기능 추가
