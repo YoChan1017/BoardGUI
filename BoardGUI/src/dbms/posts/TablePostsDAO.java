@@ -144,5 +144,37 @@ public class TablePostsDAO {
 		return list;
 	}
 	
+	// user_id로 게시글 목록 조회
+	public ArrayList<TablePostsDTO> getPostByUserId(int userId) {
+		ArrayList<TablePostsDTO> list = new ArrayList<>();
+		String sql = "SELECT * FROM posts WHERE user_id = ? ORDER BY created_at DEST";
+		
+		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setInt(1, userId);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				while (rs.next()) {
+					TablePostsDTO post = new TablePostsDTO(
+							rs.getInt("post_id"),
+							rs.getInt("board_id"),
+							rs.getInt("user_id"),
+							rs.getString("title"),
+							rs.getString("content"),
+							rs.getInt("view_count"),
+							rs.getTimestamp("created_at"),
+							rs.getTimestamp("updated_at"),
+							rs.getBoolean("is_notice"),
+							rs.getBoolean("is_secret"),
+							rs.getString("status")
+							);
+					list.add(post);
+				}
+			}
+		} catch (SQLException e) {
+			System.out.println("내 작성글 목록 조회 실패 : " + e.getMessage());
+			e.printStackTrace();
+		}
+		return list;
+	}
+	
 	// 필요시 추가작성
 }

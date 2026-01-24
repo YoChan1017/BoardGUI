@@ -232,6 +232,8 @@ public class DetailsGUI extends JFrame implements ActionListener {
 			
 		} else if(event.getSource() == btnmypost) {
 			// 나의 작성글 확인
+			setVisible(false);
+			(new DetailsPostsGUI()).setVisible(true);
 			
 		} else if(event.getSource() == btnlogout) {
 			// 세션 제거 추가 - 로그아웃 처리

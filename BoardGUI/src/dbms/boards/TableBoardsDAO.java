@@ -104,5 +104,30 @@ public class TableBoardsDAO {
 		return false;
 	}
 	
+	// board_id로 게시판 조회
+	public TableBoardsDTO getBoardById(int boardId) {
+		TableBoardsDTO board = null;
+		String sql = "SELECT * FROM boards WHERE board_id = ?";
+		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setInt(1, boardId);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next()) {
+					board = new TableBoardsDTO(
+							rs.getInt("board_id"),
+							rs.getString("code"),
+							rs.getString("name"),
+							rs.getString("type"),
+							rs.getInt("read_role"),
+							rs.getInt("write_role"),
+							rs.getBoolean("is_active")
+							);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return board;
+	}
+	
 	// 필요시 추가
 }
