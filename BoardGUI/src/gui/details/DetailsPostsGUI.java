@@ -172,7 +172,8 @@ public class DetailsPostsGUI extends JFrame implements ActionListener {
 		
 		TablePostsDAO postDao = new TablePostsDAO();
 		TableBoardsDAO boardDao = new TableBoardsDAO();
-		ArrayList<TablePostsDTO> myPosts = postDao.getPostsByBoardId(myUserId);
+		
+		ArrayList<TablePostsDTO> myPosts = postDao.getPostsByUserId(myUserId);
 		
 		if (myPosts != null) {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -225,7 +226,7 @@ public class DetailsPostsGUI extends JFrame implements ActionListener {
 			TableBoardsDAO boardDao = new TableBoardsDAO();
 			TableBoardsDTO board = boardDao.getBoardById(post.getBoardId());
 			if (board != null) {
-				PostViewGUI view = new PostViewGUI(board, postId);
+				DetailsPostsViewGUI view = new DetailsPostsViewGUI(board, postId); 
 				if (view.checkPermission()) {
 					setVisible(false);
 					view.setVisible(true);

@@ -145,9 +145,9 @@ public class TablePostsDAO {
 	}
 	
 	// user_id로 게시글 목록 조회
-	public ArrayList<TablePostsDTO> getPostByUserId(int userId) {
+	public ArrayList<TablePostsDTO> getPostsByUserId(int userId) {
 		ArrayList<TablePostsDTO> list = new ArrayList<>();
-		String sql = "SELECT * FROM posts WHERE user_id = ? ORDER BY created_at DEST";
+		String sql = "SELECT * FROM posts WHERE user_id = ? ORDER BY created_at DESC";
 		
 		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setInt(1, userId);
