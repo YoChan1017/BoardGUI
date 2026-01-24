@@ -1,4 +1,4 @@
-package gui;
+package gui.details;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -21,6 +21,8 @@ import javax.swing.border.EmptyBorder;
 
 import dbms.users.TableUsersDAO;
 import dbms.users.TableUsersDTO;
+import gui.LoginGUI;
+import gui.MainGUI;
 import session.UserSession;
 
 public class DetailsEditGUI extends JFrame implements ActionListener {

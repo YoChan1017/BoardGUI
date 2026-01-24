@@ -1,4 +1,4 @@
-package gui;
+package gui.details;
 
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -17,6 +17,7 @@ import javax.swing.SwingConstants;
 
 import dbms.users.TableUsersDAO;
 import dbms.users.TableUsersDTO;
+import gui.LoginGUI;
 import session.UserSession;
 
 public class DetailsPwEditGUI extends JFrame implements ActionListener {

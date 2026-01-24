@@ -30,10 +30,10 @@ import dbms.boards.TableBoardsDTO;
 import dbms.posts.TablePostsDAO;
 import dbms.posts.TablePostsDTO;
 import dbms.users.TableUsersRole;
-import gui.DetailsGUI;
 import gui.LoginGUI;
 import gui.MainGUI;
 import gui.board.boards.BoardGUI;
+import gui.details.DetailsGUI;
 import session.UserSession;
 
 public class PostEditGUI extends JFrame implements ActionListener {

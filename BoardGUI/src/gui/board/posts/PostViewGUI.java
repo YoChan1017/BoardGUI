@@ -41,10 +41,10 @@ import dbms.posts.TablePostsDTO;
 import dbms.users.TableUsersDAO;
 import dbms.users.TableUsersDTO;
 import dbms.users.TableUsersRole;
-import gui.DetailsGUI;
 import gui.LoginGUI;
 import gui.MainGUI;
 import gui.board.boards.BoardGUI;
+import gui.details.DetailsGUI;
 import session.UserSession;
 
 public class PostViewGUI extends JFrame implements ActionListener {

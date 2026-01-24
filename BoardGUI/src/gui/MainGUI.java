@@ -36,6 +36,7 @@ import dbms.posts.TablePostsDTO;
 import dbms.users.TableUsersDTO;
 import gui.board.boards.BoardGUI;
 import gui.board.posts.PostViewGUI;
+import gui.details.DetailsGUI;
 import session.UserSession;
 
 public class MainGUI extends JFrame implements ActionListener{

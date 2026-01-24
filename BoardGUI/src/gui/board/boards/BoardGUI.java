@@ -32,11 +32,11 @@ import dbms.posts.TablePostsDTO;
 import dbms.users.TableUsersDAO;
 import dbms.users.TableUsersDTO;
 import dbms.users.TableUsersRole;
-import gui.DetailsGUI;
 import gui.LoginGUI;
 import gui.MainGUI;
 import gui.board.posts.PostViewGUI;
 import gui.board.posts.PostWriteGUI;
+import gui.details.DetailsGUI;
 import session.UserSession;
 
 public class BoardGUI extends JFrame implements ActionListener {
