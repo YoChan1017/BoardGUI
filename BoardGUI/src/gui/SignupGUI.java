@@ -131,6 +131,14 @@ public class SignupGUI extends JFrame implements ActionListener {
 			JOptionPane.showMessageDialog(this, "모든 정보를 입력해주세요.", "입력 오류", JOptionPane.WARNING_MESSAGE);
 			return;
 		}
+		
+		// 최소 길이 검사
+		if (!InputLimit.checkMinLength(userid, 5, "아이디")) return;
+		if (!InputLimit.checkMinLength(password, 10, "비밀번호")) return;
+		if (!InputLimit.checkMinLength(nickname, 2, "닉네임")) return;
+		if (!InputLimit.checkMinLength(phone, 10, "전화번호")) return;
+		if (!InputLimit.checkMinLength(email, 5, "이메일")) return;
+		
 		// 전화번호 숫자 외 다른 글자를 입력하였을 경우
 		if (!ph.matches("\\d+")) {
 			JOptionPane.showMessageDialog(this, "전화번호는 숫자만 입력해주세요. ('-' 제외)", "입력 오류", JOptionPane.WARNING_MESSAGE);

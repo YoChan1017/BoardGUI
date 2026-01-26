@@ -200,6 +200,12 @@ public class DetailsEditGUI extends JFrame implements ActionListener {
 			JOptionPane.showMessageDialog(this, "모든 정보를 입력해주세요", "입력 오류", JOptionPane.WARNING_MESSAGE);
 			return;
 		}
+		
+		// 최소 길이 검사
+		if (!InputLimit.checkMinLength(Nickname, 2, "닉네임")) return;
+		if (!InputLimit.checkMinLength(Phone, 10, "전화번호")) return;
+		if (!InputLimit.checkMinLength(Email, 5, "이메일")) return;
+		
 		if (!inputP.matches("\\d+")) { // 전화번호 입력에 숫자 외 다른 문자가 포함되었을시
 			JOptionPane.showMessageDialog(this, "전화번호는 숫자만 입력해주세요. ('-' 제외)", "입력 오류", JOptionPane.WARNING_MESSAGE);
 			return;

@@ -105,6 +105,10 @@ public class DetailsPwEditGUI extends JFrame implements ActionListener {
 			JOptionPane.showMessageDialog(this, "모든 정보를 입력해주세요.", "입력 오류", JOptionPane.WARNING_MESSAGE);
 			return;
 		}
+		// 비밀번호 변경 최소 길이 검사
+		if (!InputLimit.checkMinLength(EditPw, 5, "신규 비밀번호")) {
+			return;
+		}
 		
 		// 현재 비밀번호 일치 여부 확인
 		TableUsersDTO currentUser = UserSession.getInstance().getUser();
