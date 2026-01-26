@@ -8,7 +8,8 @@ public class StorageSetup {
 	// Windows: "C:/BoardStorage/"
 	// Linux:   "/home/사용자명/BoardStorage/"
 	// Mac:     "/Users/사용자명/BoardStorage/"
-	public static final String SAVE_DIR = "C:/BoardStorage/";
+	// public static final String SAVE_DIR = "/home/choiy/public_html/BoardStorage/"; // 서버
+	public static final String SAVE_DIR = "C:/BoardStorage/"; // 로컬
 	
 	// 파일 저장소 생성
 	public void createStorageDirectory() {
