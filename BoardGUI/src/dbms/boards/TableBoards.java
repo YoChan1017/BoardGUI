@@ -18,7 +18,7 @@ public class TableBoards {
 	// 게시판 테이블 생성 메서드
 	public void createBoardsTable() {
 		// 테이블 생성 SQL
-		String sql = "CREATE TABLE IF NOT EXISTS BOARDS ("
+		String sql = "CREATE TABLE IF NOT EXISTS boards ("
 				+ "board_id INT AUTO_INCREMENT PRIMARY KEY, "	// 고유 id
 				+ "code VARCHAR(30) NOT NULL UNIQUE, "			// 게시판 코드 (식별용)
 				+ "name VARCHAR(50) NOT NULL, "					// 게시판 이름 (표시용)

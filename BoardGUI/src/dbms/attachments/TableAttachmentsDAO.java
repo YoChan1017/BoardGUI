@@ -12,10 +12,6 @@ public class TableAttachmentsDAO {
 
 	// CRUD Query 작성
 	// 특정 게시글 첨부파일 목록 조회
-
-	// 복사/붙여넣기용
-	// (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql))
-	// System.out.println("게시글 작성 실패 : " + e.getMessage());	
 				
 	// 첨부파일 생성(INSERT)
 	public int insertAttachment(TableAttachmentsDTO attachment) {

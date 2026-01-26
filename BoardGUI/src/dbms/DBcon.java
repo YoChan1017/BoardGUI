@@ -7,11 +7,22 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DBcon {
+	
+	// /*
+	private static String driver = "org.mariadb.jdbc.Driver";
+	private static String serverUrl = "jdbc:mariadb://osk.domcloud.co:3306/";
+	private static String dbName = "choiy_boarddb";
+	private static String username = "choiy";
+	private static String password = "(lMNgj8)xJ9Xl1(4J8";
+	// */
+	
+	 /*
 	private static String driver = "org.mariadb.jdbc.Driver";
 	private static String serverUrl = "jdbc:mariadb://localhost:3307/";
 	private static String dbName = "BoardDB";
 	private static String username = "root";
 	private static String password = "1234";
+	 */
 	
 	// 외부 클래스 연결용
 	public static Connection getConnection() throws SQLException {
