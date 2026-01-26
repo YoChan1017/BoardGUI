@@ -24,6 +24,7 @@ import dbms.users.TableUsersDTO;
 import gui.LoginGUI;
 import gui.MainGUI;
 import session.UserSession;
+import utils.InputLimit;
 
 public class DetailsEditGUI extends JFrame implements ActionListener {
 	// 필드, 생성자, 메서드 생성
@@ -60,6 +61,11 @@ public class DetailsEditGUI extends JFrame implements ActionListener {
 		Nickname = new JTextField();
 		Phone = new JTextField();
 		Email = new JTextField();
+		
+		// 입력 길이 제한 설정 (입력값, 입력길이)
+		InputLimit.checkMaxLength(Nickname, 10);
+		InputLimit.checkMaxLength(Phone, 11);
+		InputLimit.checkMaxLength(Email, 30);
 		
 		JPanel birthPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
 		Year = new JComboBox();

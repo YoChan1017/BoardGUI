@@ -19,6 +19,7 @@ import dbms.users.TableUsersDAO;
 import dbms.users.TableUsersDTO;
 import gui.LoginGUI;
 import session.UserSession;
+import utils.InputLimit;
 
 public class DetailsPwEditGUI extends JFrame implements ActionListener {
 	// 필드, 생성자, 메서드 생성
@@ -48,6 +49,11 @@ public class DetailsPwEditGUI extends JFrame implements ActionListener {
 		MyPw = new JPasswordField(15);
 		EditPw = new JPasswordField(15);
 		ReEditPw = new JPasswordField(15);
+		
+		// 입력 길이 제한 설정 (입력값, 입력길이)
+		InputLimit.checkMaxLength(MyPw, 25);
+		InputLimit.checkMaxLength(EditPw, 25);
+		InputLimit.checkMaxLength(ReEditPw, 25);
 		
 		btnpwedit = new JButton("비밀번호 변경");
 		btnpwedit.addActionListener(this);

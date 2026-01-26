@@ -5,7 +5,7 @@ import javax.swing.text.*;
 
 public class InputLimit {
 	// 텍스트 필드의 최대 길이 제한 메서드
-	public void checkMaxLength(JTextComponent textComponent, int maxLength) {
+	public static void checkMaxLength(JTextComponent textComponent, int maxLength) {
 	    ((AbstractDocument) textComponent.getDocument()).setDocumentFilter(new DocumentFilter() {
 	        @Override
 	        public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {

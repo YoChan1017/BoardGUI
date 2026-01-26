@@ -21,6 +21,7 @@ import javax.swing.SwingConstants;
 
 import dbms.users.TableUsersDAO;
 import dbms.users.TableUsersDTO;
+import utils.InputLimit;
 
 public class SignupGUI extends JFrame implements ActionListener {
 
@@ -41,6 +42,13 @@ public class SignupGUI extends JFrame implements ActionListener {
 		nickname = new JTextField(15);
 		phone = new JTextField(15);
 		email = new JTextField(15);
+		
+		// 입력 길이 제한 설정 (입력값, 입력길이)
+		InputLimit.checkMaxLength(userid, 15);
+		InputLimit.checkMaxLength(password, 25);
+		InputLimit.checkMaxLength(nickname, 10);
+		InputLimit.checkMaxLength(phone, 11);
+		InputLimit.checkMaxLength(email, 30);
 		
 		// 생년월일 콤보박스 설정
 		JPanel birthPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
