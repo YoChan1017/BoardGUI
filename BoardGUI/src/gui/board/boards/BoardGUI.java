@@ -98,6 +98,7 @@ public class BoardGUI extends JFrame implements ActionListener {
 		cbSearchType = new JComboBox<>(searchTypes);
 		txtSearch = new JTextField(20);
 		btnsearch = new JButton("검색");
+		btnsearch.addActionListener(this);
 		searchPanel.add(cbSearchType);
 		searchPanel.add(txtSearch);
 		searchPanel.add(btnsearch);

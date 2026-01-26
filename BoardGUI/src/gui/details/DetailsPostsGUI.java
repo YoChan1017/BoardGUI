@@ -46,7 +46,7 @@ public class DetailsPostsGUI extends JFrame implements ActionListener {
 	
 	// 생성자
 	public DetailsPostsGUI() {
-		
+
 		setTitle("내가 작성한 글");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setSize(800, 600);
@@ -77,6 +77,7 @@ public class DetailsPostsGUI extends JFrame implements ActionListener {
 		cbSearchType = new JComboBox<>(searchTypes);
 		txtSearch = new JTextField(20);
 		btnsearch = new JButton("검색");
+		btnsearch.addActionListener(this);
 		searchPanel.add(cbSearchType);
 		searchPanel.add(txtSearch);
 		searchPanel.add(btnsearch);
@@ -136,7 +137,7 @@ public class DetailsPostsGUI extends JFrame implements ActionListener {
 		centerPanel.add(new JPanel(), BorderLayout.CENTER);
 		centerPanel.add(listContainerPanel, BorderLayout.CENTER); 	// centerPanel에서 중앙에 listContainerPanel 배치
 		
-		loadPostList();	// 데이터 불러오기		
+		loadPostList(null);	// 데이터 불러오기		
 		
 		
 		// 하단(bottomPanel)
@@ -165,24 +166,31 @@ public class DetailsPostsGUI extends JFrame implements ActionListener {
 	
 	// 메서드
 	// 게시글 목록 불러오기
-	private void loadPostList() {
+	private void loadPostList(ArrayList<TablePostsDTO> targetList) {
 		// 내가 작성한 게시글 목록만 표시
 		tableModel.setRowCount(0);
-		int myUserId = UserSession.getInstance().getUser().getUserId();
+		ArrayList<TablePostsDTO> postsToDisplay;
 		
-		TablePostsDAO postDao = new TablePostsDAO();
-		TableBoardsDAO boardDao = new TableBoardsDAO();
+		if (targetList == null) {
+			int myUserId = UserSession.getInstance().getUser().getUserId();
+			TablePostsDAO postDao = new TablePostsDAO();
+			postsToDisplay = postDao.getPostsByUserId(myUserId);
+		} else {
+			postsToDisplay = targetList;
+		}
 		
-		ArrayList<TablePostsDTO> myPosts = postDao.getPostsByUserId(myUserId);
-		
-		if (myPosts != null) {
+		if (postsToDisplay != null) {
+			TableBoardsDAO boardDao = new TableBoardsDAO();
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-			for (TablePostsDTO post : myPosts) {
+			
+			for (TablePostsDTO post : postsToDisplay) {
 				String title = post.getTitle();
+				if (post.isNotice()) title = "[공지] " + title;
 				if (post.isSecret()) title = "🔒 " + title;
 				
 				TableBoardsDTO board = boardDao.getBoardById(post.getBoardId());
 				String boardName = (board != null) ? board.getName() : "알수없음";
+				
 				Object[] rowData = {
 						post.getPostId(),
 						boardName,
@@ -211,7 +219,7 @@ public class DetailsPostsGUI extends JFrame implements ActionListener {
 			int result = dao.deletePost(postId);
 			if (result > 0) {
 				JOptionPane.showMessageDialog(this, "게시글이 삭제되었습니다.");
-				loadPostList();
+				loadPostList(null);
 			} else {
 				JOptionPane.showMessageDialog(this, "삭제 실패", "삭제 오류", JOptionPane.ERROR_MESSAGE);
 			}
@@ -241,7 +249,38 @@ public class DetailsPostsGUI extends JFrame implements ActionListener {
 	
 	// 검색 기능
 	private void searchPosts() {
+		String type = (String) cbSearchType.getSelectedItem();
+		String keyword = txtSearch.getText().trim();
 		
+		if (keyword.isEmpty()) {
+			JOptionPane.showMessageDialog(this, "검색어를 입력해주세요.");
+			return;
+		}
+		
+		int myUserId = UserSession.getInstance().getUser().getUserId();
+		TablePostsDAO dao = new TablePostsDAO();
+		ArrayList<TablePostsDTO> allMyposts = dao.getPostsByUserId(myUserId);
+		ArrayList<TablePostsDTO> searchResults = new ArrayList<>();
+		
+		if (allMyposts != null) {
+			for (TablePostsDTO post : allMyposts) {
+				boolean match = false;
+				if ("제목".equals(type)) {
+					if (post.getTitle().contains(keyword)) match = true;
+				} else if ("내용".equals(type)) {
+					if (post.getContent().contains(keyword)) match = true;
+				}
+				if (match) {
+					searchResults.add(post);
+				}
+			}
+		}
+		
+		loadPostList(searchResults);
+		
+		if (searchResults.isEmpty()) {
+			JOptionPane.showMessageDialog(this, "검색 결과가 없습니다.");
+		}
 	}
 	
 	@Override
