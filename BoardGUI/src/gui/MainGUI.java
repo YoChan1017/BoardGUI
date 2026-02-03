@@ -78,8 +78,17 @@ public class MainGUI extends JFrame implements ActionListener{
 		// 상단 환영문구
 		TableUsersDTO user =UserSession.getInstance().getUser();
 		String nickname = (user != null) ? user.getNickname() : "게스트";
-		String role = (user != null) ? user.getRole() : "";
-		JLabel lblWelcome = new JLabel("<html><div style='text-align:center;'><font size='6'><b>" + nickname + "</b>님 환영합니다!</font><br><font size='3' color='gray'> 등급 : " + role + "</font></div></html>", SwingConstants.CENTER);
+		String roleRaw = (user != null) ? user.getRole() : "";
+		String roleDisplay = "";
+		if (roleRaw != null) { // 권한 표시 > 한글 변환
+			switch (roleRaw.toLowerCase()) {
+			case "admin": roleDisplay = "관리자"; break;
+			case "manager": roleDisplay = "매니저"; break;
+			case "user": roleDisplay = "일반 회원"; break;
+			default: roleDisplay = roleRaw;
+			}
+		}
+		JLabel lblWelcome = new JLabel("<html><div style='text-align:center;'><font size='6'><b>" + nickname + "</b>님 환영합니다!</font><br><font size='3' color='gray'> 등급 : " + roleDisplay + "</font></div></html>", SwingConstants.CENTER);
 		lblWelcome.setBorder(new EmptyBorder(0, 0, 20, 0));
 		centerPanel.add(lblWelcome, BorderLayout.NORTH);
 		// 게시판별 최신 정보 표시
