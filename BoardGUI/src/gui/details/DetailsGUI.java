@@ -97,15 +97,15 @@ public class DetailsGUI extends JFrame implements ActionListener {
 		btnpwedit.addActionListener(this);
 		btndeleteuser = new JButton("회원 탈퇴");
 		btndeleteuser.addActionListener(this);
+
+		topPanel.add(btnuseredit);
+		topPanel.add(btnpwedit);
+		topPanel.add(btndeleteuser);
 		
-		topPanel.add(btnmain);
-		topPanel.add(btnmypost);
-		topPanel.add(btnlogout);
-		topPanel.add(btnexit);
-		
-		bottomPanel.add(btnuseredit);
-		bottomPanel.add(btnpwedit);
-		bottomPanel.add(btndeleteuser);
+		bottomPanel.add(btnmain);
+		bottomPanel.add(btnmypost);
+		bottomPanel.add(btnlogout);
+		bottomPanel.add(btnexit);
 		
 		add(topPanel, BorderLayout.NORTH);
 		add(centerPanel, BorderLayout.CENTER);
