@@ -35,7 +35,7 @@ public class DetailsGUI extends JFrame implements ActionListener {
 	// 권한이 admin(관리자)일 시 topPanel에 회원관리, 게시판관리 버튼 표시
 	
 	private JTextField Nickname, Birth, Phone, Email, Createat; // 데이터 넣을 때 명칭 변경 (닉네임, 생년월일, 전화번호, 이메일, 가입날짜)
-	private JButton btnmain, btnmypost, btnlogout, btnexit, btnuseredit, btnpwedit, btndeleteuser;
+	private JButton btnmain, btnmypost, btnlogout, btnexit, btnuseredit, btnpwedit, btndeleteuser, btnusermanage, btnboardmanage;
 	
 	public DetailsGUI() {
 		setTitle("내 정보");
@@ -71,14 +71,16 @@ public class DetailsGUI extends JFrame implements ActionListener {
 			
 		// UI 추가
 		// 상단
-		btnmain = new JButton("HOME");
-		btnmain.addActionListener(this);
-		btnmypost = new JButton("작성글 보기");
-		btnmypost.addActionListener(this);
-		btnlogout = new JButton("로그아웃");
-		btnlogout.addActionListener(this);
-		btnexit = new JButton("종료");
-		btnexit.addActionListener(this);
+		btnuseredit = new JButton("회원정보 수정");
+		btnuseredit.addActionListener(this);
+		btnpwedit = new JButton("비밀번호 변경");
+		btnpwedit.addActionListener(this);
+		btndeleteuser = new JButton("회원 탈퇴");
+		btndeleteuser.addActionListener(this);
+		btnusermanage = new JButton("회원 관리");
+		btnusermanage.addActionListener(this);
+		btnboardmanage = new JButton("게시판 관리");
+		btnboardmanage.addActionListener(this);
 		
 		// 중앙
 		centerPanel.add(new JLabel("닉네임", SwingConstants.LEFT));
@@ -93,16 +95,20 @@ public class DetailsGUI extends JFrame implements ActionListener {
 		centerPanel.add(Createat);
 		
 		// 하단
-		btnuseredit = new JButton("회원정보 수정");
-		btnuseredit.addActionListener(this);
-		btnpwedit = new JButton("비밀번호 변경");
-		btnpwedit.addActionListener(this);
-		btndeleteuser = new JButton("회원 탈퇴");
-		btndeleteuser.addActionListener(this);
+		btnmain = new JButton("HOME");
+		btnmain.addActionListener(this);
+		btnmypost = new JButton("작성글 보기");
+		btnmypost.addActionListener(this);
+		btnlogout = new JButton("로그아웃");
+		btnlogout.addActionListener(this);
+		btnexit = new JButton("종료");
+		btnexit.addActionListener(this);
 
 		topPanel.add(btnuseredit);
 		topPanel.add(btnpwedit);
 		topPanel.add(btndeleteuser);
+		topPanel.add(btnusermanage);
+		topPanel.add(btnboardmanage);
 		
 		bottomPanel.add(btnmain);
 		bottomPanel.add(btnmypost);
@@ -261,6 +267,13 @@ public class DetailsGUI extends JFrame implements ActionListener {
 		} else if(event.getSource() == btndeleteuser) {
 			// 회원탈퇴
 			deleteUserData();
+			
+		} else if(event.getSource() == btnusermanage) {
+			// 회원 관리 화면으로 이동
+			
+		} else if(event.getSource() == btnboardmanage) {
+			// 게시판 관리 화면으로 이동
+			
 		}
 	}
 	
