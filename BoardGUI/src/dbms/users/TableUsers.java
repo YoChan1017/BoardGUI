@@ -14,7 +14,7 @@ public class TableUsers {
 		// 테이블 생성 SQL Query
 		String sql = "CREATE TABLE IF NOT EXISTS users ("
 				+ "user_id INT AUTO_INCREMENT PRIMARY KEY, "			// 기본키
-				+ "username VARCHAR(30) NOT NULL UNIQUE, "				// 유저 ID, 중복/null 안됨
+				+ "username VARCHAR(30) BINARY NOT NULL UNIQUE, "		// 유저 ID, 중복/null 안됨, 대소문자 구분 추가
 				+ "password VARCHAR(255) NOT NULL, "					// 유저 PW, 해싱 필요, null 안됨
 				+ "nickname VARCHAR(30) NOT NULL UNIQUE, "				// 유저 닉네임, 중복/null 안됨
 				+ "birth_date DATE, "									// 유저 생년월일

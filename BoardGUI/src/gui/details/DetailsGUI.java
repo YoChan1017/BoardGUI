@@ -32,6 +32,8 @@ public class DetailsGUI extends JFrame implements ActionListener {
 	// 버튼 > 메인화면, 작성글, 로그아웃, 종료, 회원정보 수정, 비밀번호 변경, 회원탈퇴
 	// 게시판 기능 추가 후 내가 작성한 글 보기 페이지 연결
 	
+	// 권한이 admin(관리자)일 시 topPanel에 회원관리, 게시판관리 버튼 표시
+	
 	private JTextField Nickname, Birth, Phone, Email, Createat; // 데이터 넣을 때 명칭 변경 (닉네임, 생년월일, 전화번호, 이메일, 가입날짜)
 	private JButton btnmain, btnmypost, btnlogout, btnexit, btnuseredit, btnpwedit, btndeleteuser;
 	
