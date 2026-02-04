@@ -77,10 +77,17 @@ public class DetailsGUI extends JFrame implements ActionListener {
 		btnpwedit.addActionListener(this);
 		btndeleteuser = new JButton("회원 탈퇴");
 		btndeleteuser.addActionListener(this);
-		btnusermanage = new JButton("회원 관리");
-		btnusermanage.addActionListener(this);
-		btnboardmanage = new JButton("게시판 관리");
-		btnboardmanage.addActionListener(this);
+		
+		String role = UserSession.getInstance().getUser().getRole();
+		if ("admin".equalsIgnoreCase(role)) {
+			btnusermanage = new JButton("회원 관리");
+			btnusermanage.addActionListener(this);
+			btnboardmanage = new JButton("게시판 관리");
+			btnboardmanage.addActionListener(this);
+			
+			topPanel.add(btnusermanage);
+			topPanel.add(btnboardmanage);
+		}
 		
 		// 중앙
 		centerPanel.add(new JLabel("닉네임", SwingConstants.LEFT));
@@ -107,8 +114,6 @@ public class DetailsGUI extends JFrame implements ActionListener {
 		topPanel.add(btnuseredit);
 		topPanel.add(btnpwedit);
 		topPanel.add(btndeleteuser);
-		topPanel.add(btnusermanage);
-		topPanel.add(btnboardmanage);
 		
 		bottomPanel.add(btnmain);
 		bottomPanel.add(btnmypost);
