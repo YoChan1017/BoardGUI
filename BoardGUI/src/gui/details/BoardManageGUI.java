@@ -31,7 +31,8 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 	// 게시판 목록 나열 > 게시판 이름, 게시판 타입, 게시판 코드, 읽기 권한, 작성 권한, 활성화 상태 표시
 	
 	// 게시판을 선택하여 수정, 활성화 여부 변경, 삭제
-	// 게시판 생성 > code는 소문자, type은 대문자
+	// 게시판 생성 > code는 소문자, type은 대문자로만 생성, 게시판 이름 길이 제한, 권한
+	// 게시판 검색 추가
 	
 	// 필드
 	private DefaultTableModel tableModel;

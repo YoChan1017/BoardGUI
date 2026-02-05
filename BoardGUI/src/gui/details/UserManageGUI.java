@@ -30,6 +30,8 @@ import session.UserSession;
 public class UserManageGUI extends JFrame implements ActionListener {
 	
 	// 회원 정보 확인 및 편집, 활성화 여부, 삭제
+	// 비밀번호는 재설정으로 덮어쓰기
+	// 회원 검색 추가
 
 	// 필드
 	private DefaultTableModel tableModel;
@@ -84,25 +86,25 @@ public class UserManageGUI extends JFrame implements ActionListener {
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 		centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 		// 번호, ID, PW, 닉네임, 생일, 전화번호, 이메일, 권한, 활성화 여부, 가입날짜
-		userTable.getColumn("No").setPreferredWidth(40);
+		userTable.getColumn("No").setPreferredWidth(50);
 		userTable.getColumn("No").setCellRenderer(centerRenderer);
 		userTable.getColumn("회원 ID").setPreferredWidth(100);
 		userTable.getColumn("회원 ID").setCellRenderer(centerRenderer);
-		userTable.getColumn("회원 PW").setPreferredWidth(100);
+		userTable.getColumn("회원 PW").setPreferredWidth(80);
 		userTable.getColumn("회원 PW").setCellRenderer(centerRenderer);
-		userTable.getColumn("닉네임").setPreferredWidth(80);
+		userTable.getColumn("닉네임").setPreferredWidth(100);
 		userTable.getColumn("닉네임").setCellRenderer(centerRenderer);
-		userTable.getColumn("생년월일").setPreferredWidth(80);
+		userTable.getColumn("생년월일").setPreferredWidth(90);
 		userTable.getColumn("생년월일").setCellRenderer(centerRenderer);
-		userTable.getColumn("전화번호").setPreferredWidth(90);
+		userTable.getColumn("전화번호").setPreferredWidth(120);
 		userTable.getColumn("전화번호").setCellRenderer(centerRenderer);
-		userTable.getColumn("이메일").setPreferredWidth(90);
+		userTable.getColumn("이메일").setPreferredWidth(180);
 		userTable.getColumn("이메일").setCellRenderer(centerRenderer);
 		userTable.getColumn("회원 권한").setPreferredWidth(60);
 		userTable.getColumn("회원 권한").setCellRenderer(centerRenderer);
-		userTable.getColumn("활성화 여부").setPreferredWidth(70);
+		userTable.getColumn("활성화 여부").setPreferredWidth(80);
 		userTable.getColumn("활성화 여부").setCellRenderer(centerRenderer);
-		userTable.getColumn("가입 날짜").setPreferredWidth(80);
+		userTable.getColumn("가입 날짜").setPreferredWidth(150);
 		userTable.getColumn("가입 날짜").setCellRenderer(centerRenderer);
 		// 스크롤 추가
 		JScrollPane scrollPane = new JScrollPane(userTable);
@@ -145,17 +147,28 @@ public class UserManageGUI extends JFrame implements ActionListener {
 		
 		if (list != null) {
 			for (TableUsersDTO u : list) {
+				
+				String maskedPw = "*********";
+				String roleRaw = u.getRole();
+				String roleDisplay = roleRaw;
+				if (roleRaw != null) {
+					switch (roleRaw.toLowerCase()) {
+					case "admin": roleDisplay = "관리자"; break;
+					case "manager": roleDisplay = "매니저"; break;
+					case "user": roleDisplay = "일반"; break;
+					}
+				}
 				String status = u.isActive() ? "활성화" : "비활성화";
 				
 				Object[] rowData = {
 						u.getUserId(),
 						u.getUsername(),
-						u.getPassword(),
+						maskedPw,
 						u.getNickname(),
 						u.getBirthDate(),
 						u.getPhone(),
 						u.getEmail(),
-						u.getRole(),
+						roleDisplay,
 						u.getCreatedAt(),
 						status
 				};
