@@ -275,9 +275,13 @@ public class DetailsGUI extends JFrame implements ActionListener {
 			
 		} else if(event.getSource() == btnusermanage) {
 			// 회원 관리 화면으로 이동
+			setVisible(false);
+			(new UserManageGUI()).setVisible(true);
 			
 		} else if(event.getSource() == btnboardmanage) {
 			// 게시판 관리 화면으로 이동
+			setVisible(false);
+			(new BoardManageGUI()).setVisible(true);
 			
 		}
 	}
