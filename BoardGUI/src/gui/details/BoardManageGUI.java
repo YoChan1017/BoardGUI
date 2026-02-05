@@ -1,16 +1,26 @@
 package gui.details;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 
+import dbms.boards.TableBoardsDAO;
+import dbms.boards.TableBoardsDTO;
 import gui.LoginGUI;
 import gui.MainGUI;
 import session.UserSession;
@@ -21,9 +31,11 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 	// 게시판 목록 나열 > 게시판 이름, 게시판 타입, 게시판 코드, 읽기 권한, 작성 권한, 활성화 상태 표시
 	
 	// 게시판을 선택하여 수정, 활성화 여부 변경, 삭제
-	// 게시판 생성
+	// 게시판 생성 > code는 소문자, type은 대문자
 	
 	// 필드
+	private DefaultTableModel tableModel;
+	private JTable boardTable;
 	private JButton btnmain, btnuser, btnlogout, btnexit;
 	
 	
@@ -60,12 +72,47 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 		topPanel.add(lblTitle);
 		
 		// 중앙
-		
+		centerPanel.setBorder(new EmptyBorder(20, 30, 20, 30));
+		// 테이블 컬럼
+		String[] columnNames = {"No", "게시판 이름", "게시판 타입", "게시판 코드", "읽기 권한", "작성 권한", "활성화 여부"};
+		tableModel = new DefaultTableModel(columnNames, 0) {
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return false;
+			}
+		};
+		boardTable = new JTable(tableModel);
+		boardTable.setRowHeight(25);
+		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+		centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+		// 번호, 이름, 타입, 코드, 권한, 활성화 여부
+		boardTable.getColumn("No").setPreferredWidth(40);
+		boardTable.getColumn("No").setCellRenderer(centerRenderer);
+		boardTable.getColumn("게시판 이름").setPreferredWidth(150);
+		boardTable.getColumn("게시판 이름").setCellRenderer(centerRenderer);
+		boardTable.getColumn("게시판 타입").setPreferredWidth(80);
+		boardTable.getColumn("게시판 타입").setCellRenderer(centerRenderer);
+		boardTable.getColumn("게시판 코드").setPreferredWidth(80);
+		boardTable.getColumn("게시판 코드").setCellRenderer(centerRenderer);
+		boardTable.getColumn("읽기 권한").setPreferredWidth(60);
+		boardTable.getColumn("읽기 권한").setCellRenderer(centerRenderer);
+		boardTable.getColumn("작성 권한").setPreferredWidth(60);
+		boardTable.getColumn("작성 권한").setCellRenderer(centerRenderer);
+		boardTable.getColumn("활성화 여부").setPreferredWidth(70);
+		boardTable.getColumn("활성화 여부").setCellRenderer(centerRenderer);
+		// 스크롤 추가
+		JScrollPane scrollPane = new JScrollPane(boardTable);
+		scrollPane.getViewport().setBackground(Color.WHITE);
+		scrollPane.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
+		// centerPanel에 추가
+		centerPanel.add(scrollPane, BorderLayout.CENTER);
+		// 데이터 표시
+		loadBoardList();
 		
 		// 하단
 		btnmain = new JButton("HOME");
 		btnmain.addActionListener(this);
-		btnuser = new JButton("작성글 보기");
+		btnuser = new JButton("내 정보");
 		btnuser.addActionListener(this);
 		btnlogout = new JButton("로그아웃");
 		btnlogout.addActionListener(this);
@@ -86,7 +133,29 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 	
 	
 	// 메서드
-	
+	// 게시판 목록 불러오기
+	private void loadBoardList() {
+		tableModel.setRowCount(0);
+		TableBoardsDAO dao = new TableBoardsDAO();
+		List<TableBoardsDTO> list = dao.getAllBoards();
+		
+		if (list != null) {
+			for (TableBoardsDTO b : list) {
+				String status = b.isActive() ? "활성화" : "비활성화";
+				
+				Object[] rowData = {
+						b.getBoardId(),
+						b.getName(),
+						b.getType(),
+						b.getCode(),
+						b.getReadRole(),
+						b.getWriteRole(),
+						status
+				};
+				tableModel.addRow(rowData);
+			}
+		}
+	}
 	
 	
 	@Override

@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import dbms.DBcon;
 
@@ -224,6 +225,34 @@ public class TableUsersDAO {
 			e.printStackTrace();
 		}
 		return user;
+	}
+	
+	// 전체 조회
+	public ArrayList<TableUsersDTO> getAllUsers() {
+		ArrayList<TableUsersDTO> list = new ArrayList<>();
+		String sql = "SELECT * FROM users ORDER BY user_id ASC";
+		
+		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
+			while (rs.next()) {
+				TableUsersDTO user = new TableUsersDTO(
+						rs.getInt("user_id"),
+						rs.getString("username"),
+						rs.getString("password"),
+						rs.getString("nickname"),
+						rs.getDate("birth_date"),
+						rs.getString("phone"),
+						rs.getString("email"),
+						rs.getString("role"),
+						rs.getBoolean("is_active"),
+						rs.getTimestamp("created_at")
+						);
+				list.add(user);
+			}
+		} catch (SQLException e) {
+			System.out.println("회원 목록 조회 실패 : " + e.getMessage());
+			e.printStackTrace();
+		}
+		return list;
 	}
 	
 	// 필요 시 추가

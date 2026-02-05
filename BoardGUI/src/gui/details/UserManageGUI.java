@@ -1,14 +1,28 @@
 package gui.details;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 
+import dbms.boards.TableBoardsDAO;
+import dbms.boards.TableBoardsDTO;
+import dbms.users.TableUsersDAO;
+import dbms.users.TableUsersDTO;
 import gui.LoginGUI;
 import gui.MainGUI;
 import session.UserSession;
@@ -18,6 +32,8 @@ public class UserManageGUI extends JFrame implements ActionListener {
 	// 회원 정보 확인 및 편집, 활성화 여부, 삭제
 
 	// 필드
+	private DefaultTableModel tableModel;
+	private JTable userTable;
 	private JButton btnmain, btnuser, btnlogout, btnexit;
 	
 	
@@ -49,12 +65,53 @@ public class UserManageGUI extends JFrame implements ActionListener {
 		JPanel bottomPanel = new JPanel();
 		
 		// 상단
-		
-		
+		JLabel lblTitle = new JLabel("회원 목록");
+		lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
+		topPanel.add(lblTitle);
 		
 		// 중앙
-		
-		
+		centerPanel.setBorder(new EmptyBorder(20, 30, 20, 30));
+		// 테이블 컬럼
+		String[] columnNames = {"No", "회원 ID", "회원 PW", "닉네임", "생년월일", "전화번호", "이메일", "회원 권한", "활성화 여부", "가입 날짜"};
+		tableModel = new DefaultTableModel(columnNames, 0) {
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return false;
+			}
+		};
+		userTable = new JTable(tableModel);
+		userTable.setRowHeight(25);
+		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+		centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+		// 번호, ID, PW, 닉네임, 생일, 전화번호, 이메일, 권한, 활성화 여부, 가입날짜
+		userTable.getColumn("No").setPreferredWidth(40);
+		userTable.getColumn("No").setCellRenderer(centerRenderer);
+		userTable.getColumn("회원 ID").setPreferredWidth(100);
+		userTable.getColumn("회원 ID").setCellRenderer(centerRenderer);
+		userTable.getColumn("회원 PW").setPreferredWidth(100);
+		userTable.getColumn("회원 PW").setCellRenderer(centerRenderer);
+		userTable.getColumn("닉네임").setPreferredWidth(80);
+		userTable.getColumn("닉네임").setCellRenderer(centerRenderer);
+		userTable.getColumn("생년월일").setPreferredWidth(80);
+		userTable.getColumn("생년월일").setCellRenderer(centerRenderer);
+		userTable.getColumn("전화번호").setPreferredWidth(90);
+		userTable.getColumn("전화번호").setCellRenderer(centerRenderer);
+		userTable.getColumn("이메일").setPreferredWidth(90);
+		userTable.getColumn("이메일").setCellRenderer(centerRenderer);
+		userTable.getColumn("회원 권한").setPreferredWidth(60);
+		userTable.getColumn("회원 권한").setCellRenderer(centerRenderer);
+		userTable.getColumn("활성화 여부").setPreferredWidth(70);
+		userTable.getColumn("활성화 여부").setCellRenderer(centerRenderer);
+		userTable.getColumn("가입 날짜").setPreferredWidth(80);
+		userTable.getColumn("가입 날짜").setCellRenderer(centerRenderer);
+		// 스크롤 추가
+		JScrollPane scrollPane = new JScrollPane(userTable);
+		scrollPane.getViewport().setBackground(Color.WHITE);
+		scrollPane.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
+		// centerPanel에 추가
+		centerPanel.add(scrollPane, BorderLayout.CENTER);
+		// 데이터 표시
+		loadUserList();
 		
 		// 하단
 		btnmain = new JButton("HOME");
@@ -80,7 +137,32 @@ public class UserManageGUI extends JFrame implements ActionListener {
 	
 	
 	// 메서드
-	
+	// 회원 목록 불러오기
+	private void loadUserList() {
+		tableModel.setRowCount(0);
+		TableUsersDAO dao = new TableUsersDAO();
+		List<TableUsersDTO> list = dao.getAllUsers();
+		
+		if (list != null) {
+			for (TableUsersDTO u : list) {
+				String status = u.isActive() ? "활성화" : "비활성화";
+				
+				Object[] rowData = {
+						u.getUserId(),
+						u.getUsername(),
+						u.getPassword(),
+						u.getNickname(),
+						u.getBirthDate(),
+						u.getPhone(),
+						u.getEmail(),
+						u.getRole(),
+						u.getCreatedAt(),
+						status
+				};
+				tableModel.addRow(rowData);
+			}
+		}
+	}
 	
 	
 	@Override
