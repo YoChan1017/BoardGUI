@@ -2,17 +2,24 @@ package gui.details;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -24,20 +31,22 @@ import dbms.boards.TableBoardsDTO;
 import gui.LoginGUI;
 import gui.MainGUI;
 import session.UserSession;
+import utils.InputLimit;
 
 public class BoardManageGUI extends JFrame implements ActionListener {
 	
 	
 	// 게시판 목록 나열 > 게시판 이름, 게시판 타입, 게시판 코드, 읽기 권한, 작성 권한, 활성화 상태 표시
-	
+	// 게시판 생성 > code는 소문자, type은 대문자로만 생성, 게시판 이름 길이 제한, 권한부여 
 	// 게시판을 선택하여 수정, 활성화 여부 변경, 삭제
-	// 게시판 생성 > code는 소문자, type은 대문자로만 생성, 게시판 이름 길이 제한, 권한
 	// 게시판 검색 추가
 	
 	// 필드
+	private JComboBox<String> cbSearchType;
+	private JTextField txtSearch;
 	private DefaultTableModel tableModel;
 	private JTable boardTable;
-	private JButton btnmain, btnuser, btnlogout, btnexit;
+	private JButton btnmain, btnuser, btnlogout, btnexit, btnBsearch, btnBcreate;
 	
 	
 	// 생성자
@@ -63,14 +72,33 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 			return;
 		}
 		
-		JPanel topPanel = new JPanel();
+		JPanel topPanel = new JPanel(new BorderLayout());
 		JPanel centerPanel = new JPanel(new BorderLayout());
 		JPanel bottomPanel = new JPanel();
 		
 		// 상단
+		// 상단 - 좌측 - 검색
+		JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+		String[] searchOptions = {"게시판 이름", "코드"};
+		cbSearchType = new JComboBox<>(searchOptions);
+		txtSearch = new JTextField(15);
+		btnBsearch = new JButton("검색");
+		btnBsearch.addActionListener(this);
+		searchPanel.add(cbSearchType);
+		searchPanel.add(txtSearch);
+		searchPanel.add(btnBsearch);
+		// 상단 - 중앙 - 타이틀
 		JLabel lblTitle = new JLabel("게시판 목록");
 		lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
-		topPanel.add(lblTitle);
+		// 상단 - 우측 - 게시판 생성
+		JPanel createPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+		btnBcreate = new JButton("게시판 생성");
+		btnBcreate.addActionListener(this);
+		createPanel.add(btnBcreate);
+		// 상단 Panel 배치
+		topPanel.add(searchPanel, BorderLayout.WEST);
+		topPanel.add(lblTitle, BorderLayout.CENTER);
+		topPanel.add(createPanel, BorderLayout.EAST);
 		
 		// 중앙
 		centerPanel.setBorder(new EmptyBorder(20, 30, 20, 30));
@@ -132,7 +160,6 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 		setLocationRelativeTo(null);
 	}
 	
-	
 	// 메서드
 	// 게시판 목록 불러오기
 	private void loadBoardList() {
@@ -156,6 +183,66 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 				tableModel.addRow(rowData);
 			}
 		}
+	}
+	
+	// 게시판 생성
+	private void showCreateBoardDialog() {
+		
+		JDialog dialog = new JDialog(this, "게시판 생성", true);
+		dialog.setSize(350, 400);
+		dialog.setLayout(new BorderLayout());
+		dialog.setLocationRelativeTo(this);
+		
+		JPanel inputPanel = new JPanel(new GridLayout(6, 2, 10, 10));
+		inputPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+		
+		// 게시판 설정
+		JTextField tfName = new JTextField();
+		JTextField tfCode = new JTextField();
+		JTextField tfType = new JTextField();
+		JSpinner spinRead = new JSpinner(new SpinnerNumberModel(1, 1, 9, 1));
+		JSpinner spinWrite = new JSpinner(new SpinnerNumberModel(1, 1, 9, 1));
+		// 입력 길이 제한
+		InputLimit.checkMaxLength(tfName, 15);
+		InputLimit.checkMaxLength(tfCode, 15);
+		InputLimit.checkMaxLength(tfType, 20);
+		
+		inputPanel.add(new JLabel("게시판 이름 : "));
+		inputPanel.add(tfName);
+		inputPanel.add(new JLabel("게시판 코드 : "));
+		inputPanel.add(tfCode);
+		inputPanel.add(new JLabel("게시판 타입 : "));
+		inputPanel.add(tfType);
+		inputPanel.add(new JLabel("읽기 권한 레벨 : "));
+		inputPanel.add(spinRead);
+		inputPanel.add(new JLabel("쓰기 권한 레벨 : "));
+		inputPanel.add(spinWrite);
+		
+		// 설명 표시
+		JLabel lblInfo = new JLabel("<html><font color='gray' size='2'><br>* 코드와 타입은 영문으로 작성바랍니다.<br>* 코드는 소문자, 타입은 대문자로 변환됩니다.</font></html>");
+		lblInfo.setHorizontalAlignment(SwingConstants.CENTER);
+		lblInfo.setBorder(new EmptyBorder(0, 0, 10, 0));
+		
+		JPanel btnPanel = new JPanel();
+		JButton btnSave = new JButton("생성");
+		JButton btnCancel = new JButton("취소");
+		
+		// 버튼 이벤트
+		btnSave.addActionListener(e -> {
+			
+			
+			
+			
+		});
+		btnCancel.addActionListener(e -> dialog.dispose());
+		
+		btnPanel.add(btnSave);
+		btnPanel.add(btnCancel);
+		dialog.add(inputPanel, BorderLayout.CENTER);
+		dialog.add(lblInfo, BorderLayout.NORTH);
+		dialog.add(btnPanel, BorderLayout.SOUTH);
+		
+		dialog.setVisible(true);
 	}
 	
 	
@@ -183,6 +270,13 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 			// 세션 제거 추가 - 로그아웃 처리
 			// 프로그램 종료로 세션 자동 소멸
 			System.exit(0);
+			
+		} else if(event.getSource() == btnBsearch) {
+			// 검색 기능 메서드 추가
+			
+		} else if(event.getSource() == btnBcreate) {
+			// 게시판 생성 메서드 추가
+			showCreateBoardDialog();
 			
 		}
 	}
