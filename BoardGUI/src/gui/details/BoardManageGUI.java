@@ -219,7 +219,7 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 		inputPanel.add(spinWrite);
 		
 		// 설명 표시
-		JLabel lblInfo = new JLabel("<html><font color='gray' size='2'><br>* 코드와 타입은 영문으로 작성바랍니다.<br>* 코드는 소문자, 타입은 대문자로 변환됩니다.</font></html>");
+		JLabel lblInfo = new JLabel("<html><font color='gray' size='2'><br>* 코드와 타입은 영문으로 작성바랍니다.<br>* 코드는 소문자, 타입은 대문자로 변환됩니다.<br>* 권한 레벨은 1 ~ 9로 설정해주세요.</font></html>");
 		lblInfo.setHorizontalAlignment(SwingConstants.CENTER);
 		lblInfo.setBorder(new EmptyBorder(0, 0, 10, 0));
 		
@@ -229,9 +229,46 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 		
 		// 버튼 이벤트
 		btnSave.addActionListener(e -> {
+			String name = tfName.getText().trim();
+			String code = tfCode.getText().trim();
+			String type = tfType.getText().trim();
+			code = code.toLowerCase();
+			type = type.toUpperCase();
+			int readRole = (int) spinRead.getValue();
+			int writeRole = (int) spinWrite.getValue();
 			
-			
-			
+			// 유효성 검사
+			if (name.isEmpty() || code.isEmpty() || type.isEmpty()) { // 모든 칸 입력
+				JOptionPane.showMessageDialog(dialog, "모든 정보를 입력해주세요.", "입력 오류", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			TableBoardsDAO dao = new TableBoardsDAO();
+			if (dao.isNameDuplicate(name)) { // 게시판 이름 중복 확인
+				JOptionPane.showMessageDialog(dialog, "이미 존재하는 게시판 이름입니다.", "중복 오류", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			if (dao.isCodeDuplicate(code)) { // 게시판 코드 중복 확인
+				JOptionPane.showMessageDialog(dialog, "이미 존재하는 게시판 코드입니다.", "중복 오류", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			try { // 권한 레벨(숫자) 확인
+				spinRead.commitEdit();
+				spinWrite.commitEdit();
+			} catch (java.text.ParseException pe) {
+				JOptionPane.showMessageDialog(dialog, "권한 레벨 설정은 숫자여야 합니다.", "입력 오류", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+
+			// DB 저장
+			TableBoardsDTO newBoard = new TableBoardsDTO(code, name, type, readRole, writeRole, true);
+			int result = dao.insertBoard(newBoard);
+			if (result > 0) {
+				JOptionPane.showMessageDialog(dialog, "게시판이 생성되었습니다.");
+				loadBoardList();
+				dialog.dispose();
+			} else {
+				JOptionPane.showMessageDialog(dialog, "게시판 생성에 실패하였습니다.", "생성 오류", JOptionPane.ERROR_MESSAGE);
+			}
 			
 		});
 		btnCancel.addActionListener(e -> dialog.dispose());

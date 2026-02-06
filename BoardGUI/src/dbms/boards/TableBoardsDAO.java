@@ -90,11 +90,25 @@ public class TableBoardsDAO {
 		return result;
 	}
 	
-	// 게시판 중복확인
+	// 게시판 중복확인 - 코드(code)
 	public boolean isCodeDuplicate(String code) {
 		String sql = "SELECT 1 FROM boards WHERE code = ?";
 		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, code);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				return rs.next();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	// 게시판 중복확인 - 이름(name)
+	public boolean isNameDuplicate(String name) {
+		String sql = "SELECT 1 FROM boards WHERE name = ?";
+		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, name);
 			try (ResultSet rs = pstmt.executeQuery()) {
 				return rs.next();
 			}

@@ -45,4 +45,23 @@ public class InputLimit {
         }
         return true; // 검사 통과
     }
+	
+	// 숫자 입력 제한 메서드
+	public static void onlyNumber(JTextComponent textComponent) {
+		((AbstractDocument) textComponent.getDocument()).setDocumentFilter(new DocumentFilter() {
+			@Override // 숫자만 입력 허용
+			public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+				if (string != null && string.matches("\\d*")) {
+					super.insertString(fb, offset, string, attr);
+				}
+			}
+			
+			@Override // 숫자만 대체 허용
+			public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+				if (text != null && text.matches("\\d*")) {
+					super.replace(fb, offset, length, text, attrs);
+				}
+			}
+		});
+	}
 }
