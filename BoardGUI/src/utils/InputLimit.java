@@ -9,9 +9,14 @@ public class InputLimit {
 	    ((AbstractDocument) textComponent.getDocument()).setDocumentFilter(new DocumentFilter() {
 	        @Override
 	        public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+	        	
+	        	if (text == null) {
+	        		return;
+	        	}
+	        	
 	            // 붙여넣기나 대량 입력 시 길이 체크
 	            int currentLength = fb.getDocument().getLength();
-	            int overLimit = (currentLength + text.length()) - length - maxLength;
+	            int overLimit = (currentLength + text.length()) - length - maxLength;     
 	            
 	            if (overLimit > 0) {
 	                // 제한을 넘는 부분은 잘라내고 입력 (선택사항: 그냥 입력 막으려면 return)

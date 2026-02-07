@@ -348,14 +348,58 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 		inputPanel.add(spinRead);
 		inputPanel.add(new JLabel("쓰기 권한 레벨 : "));
 		inputPanel.add(spinWrite);
+		inputPanel.add(new JLabel("게시판 상태 : "));
+		inputPanel.add(chkActive);
 		
 		JPanel btnPanel = new JPanel();
 		JButton btnBupdate = new JButton("수정");
 		JButton btnBcancel = new JButton("취소");
 		
 		// 버튼 이벤트 생성
-		
-		
+		btnBupdate.addActionListener(e -> {
+			String name = tfName.getText().trim();
+			String code = tfCode.getText().trim();
+			String type = tfType.getText().trim();
+			code = code.toLowerCase();
+			type = type.toUpperCase();
+			int readRole = (int) spinRead.getValue();
+			int writeRole = (int) spinWrite.getValue();
+			boolean isActive = chkActive.isSelected();
+			
+			// 유효성 검사
+			if (name.isEmpty() || code.isEmpty() || type.isEmpty()) { // 모든 칸 입력
+				JOptionPane.showMessageDialog(dialog, "모든 정보를 입력해주세요.", "입력 오류", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			TableBoardsDAO dao = new TableBoardsDAO();
+			if (dao.isNameDuplicate(name)) { // 게시판 이름 중복 확인
+				JOptionPane.showMessageDialog(dialog, "이미 존재하는 게시판 이름입니다.", "중복 오류", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			if (dao.isCodeDuplicate(code)) { // 게시판 코드 중복 확인
+				JOptionPane.showMessageDialog(dialog, "이미 존재하는 게시판 코드입니다.", "중복 오류", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			try { // 권한 레벨(숫자) 확인
+				spinRead.commitEdit();
+				spinWrite.commitEdit();
+			} catch (java.text.ParseException pe) {
+				JOptionPane.showMessageDialog(dialog, "권한 레벨 설정은 숫자여야 합니다.", "입력 오류", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			
+			// DB 업데이트
+			TableBoardsDTO updateBoard = new TableBoardsDTO(board.getBoardId(), code, name, type, readRole, writeRole, isActive);
+			int result = dao.updateBoard(updateBoard);
+			if (result > 0) {
+				JOptionPane.showMessageDialog(dialog, "게시판 정보가 수정되었습니다.");
+				loadBoardList();
+				dialog.dispose();
+			} else {
+				JOptionPane.showMessageDialog(dialog, "게시판 정보 수정에 실패하였습니다.", "수정 오류", JOptionPane.ERROR_MESSAGE);
+			}
+		});
+		btnBcancel.addActionListener(e -> dialog.dispose());
 		
 		
 		btnPanel.add(btnBupdate);
@@ -406,3 +450,9 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 		
 	}
 }
+
+
+//검색, 생성버튼 위치 조정
+//수정 시 기존 정보 중 이름이 같으면 수정이 안됨
+//코드, 타입 작성에는 영어만 입력가능하게 추가
+
