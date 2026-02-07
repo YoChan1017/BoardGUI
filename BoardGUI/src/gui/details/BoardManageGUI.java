@@ -6,9 +6,12 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -38,7 +41,7 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 	
 	// 게시판 목록 나열 > 게시판 이름, 게시판 타입, 게시판 코드, 읽기 권한, 작성 권한, 활성화 상태 표시
 	// 게시판 생성 > code는 소문자, type은 대문자로만 생성, 게시판 이름 길이 제한, 권한부여 
-	// 게시판을 선택하여 수정, 활성화 여부 변경, 삭제
+	// 게시판 수정 > 이름, 타입, 코드, 권한, 활성화 여부 변경
 	// 게시판 검색 추가
 	
 	// 필드
@@ -129,6 +132,8 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 		boardTable.getColumn("작성 권한").setCellRenderer(centerRenderer);
 		boardTable.getColumn("활성화 여부").setPreferredWidth(70);
 		boardTable.getColumn("활성화 여부").setCellRenderer(centerRenderer);
+		// 이벤트 메서드 호출
+		addTableSelectionListener();
 		// 스크롤 추가
 		JScrollPane scrollPane = new JScrollPane(boardTable);
 		scrollPane.getViewport().setBackground(Color.WHITE);
@@ -183,6 +188,36 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 				tableModel.addRow(rowData);
 			}
 		}
+	}
+	
+	// 테이블 클릭 이벤트
+	private void addTableSelectionListener() {
+		boardTable.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					int row = boardTable.getSelectedRow();
+					if (row != -1) {
+						processTableSelection(row);
+					}
+				}
+			}
+		});
+	}
+	
+	// 테이블 선택 처리
+	private void processTableSelection(int row) {
+		int id = (int) boardTable.getValueAt(row, 0);
+		String name = (String) boardTable.getValueAt(row, 1);
+		String type = (String) boardTable.getValueAt(row, 2);
+		String code = (String) boardTable.getValueAt(row, 3);
+		int readRole = (int) boardTable.getValueAt(row, 4);
+		int writeRole = (int) boardTable.getValueAt(row, 5);
+		String status = (String) boardTable.getValueAt(row, 6);
+		boolean isActive = "활성화".equals(status);
+		
+		TableBoardsDTO board = new TableBoardsDTO(id, code, name, type, readRole, writeRole, isActive);
+		showEditBoardDialog(board);
 	}
 	
 	// 게시판 생성
@@ -282,6 +317,55 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 		dialog.setVisible(true);
 	}
 	
+	// 게시판 수정
+	private void showEditBoardDialog(TableBoardsDTO board) {
+		
+		JDialog dialog = new JDialog(this, "게시판 수정", true);
+		dialog.setSize(350, 420);
+		dialog.setLayout(new BorderLayout());
+		dialog.setLocationRelativeTo(this);
+		
+		JPanel inputPanel = new JPanel(new GridLayout(6, 2, 10, 10));
+		inputPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+		JTextField tfName = new JTextField(board.getName());
+		JTextField tfCode = new JTextField(board.getCode());
+		JTextField tfType = new JTextField(board.getType());
+		JSpinner spinRead = new JSpinner(new SpinnerNumberModel(board.getReadRole(), 1, 9, 1));
+		JSpinner spinWrite = new JSpinner(new SpinnerNumberModel(board.getWriteRole(), 1, 9, 1));
+		JCheckBox chkActive = new JCheckBox("활성화", board.isActive());
+		
+		InputLimit.checkMaxLength(tfName, 20);
+		InputLimit.checkMaxLength(tfCode, 15);
+		InputLimit.checkMaxLength(tfType, 10);
+		
+		inputPanel.add(new JLabel("게시판 이름 : "));
+		inputPanel.add(tfName);
+		inputPanel.add(new JLabel("게시판 코드 : "));
+		inputPanel.add(tfCode);
+		inputPanel.add(new JLabel("게시판 타입 : "));
+		inputPanel.add(tfType);
+		inputPanel.add(new JLabel("읽기 권한 레벨 : "));
+		inputPanel.add(spinRead);
+		inputPanel.add(new JLabel("쓰기 권한 레벨 : "));
+		inputPanel.add(spinWrite);
+		
+		JPanel btnPanel = new JPanel();
+		JButton btnBupdate = new JButton("수정");
+		JButton btnBcancel = new JButton("취소");
+		
+		// 버튼 이벤트 생성
+		
+		
+		
+		
+		btnPanel.add(btnBupdate);
+		btnPanel.add(btnBcancel);
+		
+		dialog.add(inputPanel, BorderLayout.CENTER);
+		dialog.add(btnPanel, BorderLayout.SOUTH);
+		
+		dialog.setVisible(true);
+	}
 	
 	@Override
 	public void actionPerformed(ActionEvent event) {

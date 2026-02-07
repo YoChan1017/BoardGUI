@@ -60,14 +60,15 @@ public class TableBoardsDAO {
 	// 게시판 정보 수정(UPDATE)
 	public int updateBoard(TableBoardsDTO board) {
 		int result = 0;
-		String sql = "UPDATE boards SET name = ?, type = ?, read_role = ?, write_role = ?, is_active = ? WHERE code = ?";
+		String sql = "UPDATE boards SET code = ?, name = ?, type = ?, read_role = ?, write_role = ?, is_active = ? WHERE board_id = ?";
 		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			pstmt.setString(1, board.getName());
-			pstmt.setString(2, board.getType());
-			pstmt.setInt(3, board.getReadRole());
-			pstmt.setInt(4, board.getWriteRole());
-			pstmt.setBoolean(5, board.isActive());
-			pstmt.setString(6, board.getCode());
+			pstmt.setString(1, board.getCode());
+			pstmt.setString(2, board.getName());
+			pstmt.setString(3, board.getType());
+			pstmt.setInt(4, board.getReadRole());
+			pstmt.setInt(5, board.getWriteRole());
+			pstmt.setBoolean(6, board.isActive());
+			pstmt.setInt(7, board.getBoardId());
 			result = pstmt.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println("게시판 수정 실패 : " + e.getMessage());
@@ -77,11 +78,11 @@ public class TableBoardsDAO {
 	}
 	
 	// 게시판 삭제(DELETE)
-	public int deleteBoard(String code) {
+	public int deleteBoard(int boardId) {
 		int result = 0;
-		String sql = "DELETE FROM boards WHERE code = ?";
+		String sql = "DELETE FROM boards WHERE board_id = ?";
 		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			pstmt.setString(1,  code);
+			pstmt.setInt(1, boardId);
 			result = pstmt.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println("게시판 삭제 실패 : " + e.getMessage());
