@@ -92,10 +92,11 @@ public class TableBoardsDAO {
 	}
 	
 	// 게시판 중복확인 - 코드(code)
-	public boolean isCodeDuplicate(String code) {
-		String sql = "SELECT 1 FROM boards WHERE code = ?";
+	public boolean isCodeDuplicate(String code, int excludeId) {
+		String sql = "SELECT 1 FROM boards WHERE code = ? AND board_id != ?";
 		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, code);
+			pstmt.setInt(2, excludeId);
 			try (ResultSet rs = pstmt.executeQuery()) {
 				return rs.next();
 			}
@@ -106,10 +107,11 @@ public class TableBoardsDAO {
 	}
 	
 	// 게시판 중복확인 - 이름(name)
-	public boolean isNameDuplicate(String name) {
-		String sql = "SELECT 1 FROM boards WHERE name = ?";
+	public boolean isNameDuplicate(String name, int excludeId) {
+		String sql = "SELECT 1 FROM boards WHERE name = ? AND board_id != ?";
 		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, name);
+			pstmt.setInt(2, excludeId);
 			try (ResultSet rs = pstmt.executeQuery()) {
 				return rs.next();
 			}

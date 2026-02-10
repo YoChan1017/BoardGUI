@@ -79,31 +79,34 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 		JPanel centerPanel = new JPanel(new BorderLayout());
 		JPanel bottomPanel = new JPanel();
 		
-		// 상단
-		// 상단 - 좌측 - 검색
-		JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-		String[] searchOptions = {"게시판 이름", "코드"};
-		cbSearchType = new JComboBox<>(searchOptions);
-		txtSearch = new JTextField(15);
-		btnBsearch = new JButton("검색");
-		btnBsearch.addActionListener(this);
-		searchPanel.add(cbSearchType);
-		searchPanel.add(txtSearch);
-		searchPanel.add(btnBsearch);
+		// 상단	
 		// 상단 - 중앙 - 타이틀
 		JLabel lblTitle = new JLabel("게시판 목록");
 		lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
-		// 상단 - 우측 - 게시판 생성
-		JPanel createPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+		// 상단 Panel 배치
+		topPanel.add(lblTitle, BorderLayout.CENTER);
+		
+		
+		// 중앙
+		JPanel functionPanel = new JPanel(new BorderLayout());
+		// 중앙 - 좌측 상단 - 검색
+				JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+				String[] searchOptions = {"게시판 이름", "코드"};
+				cbSearchType = new JComboBox<>(searchOptions);
+				txtSearch = new JTextField(15);
+				btnBsearch = new JButton("검색");
+				btnBsearch.addActionListener(this);
+				searchPanel.add(cbSearchType);
+				searchPanel.add(txtSearch);
+				searchPanel.add(btnBsearch);
+		// 중앙 - 우측 상단 - 게시판 생성
+		JPanel createPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
 		btnBcreate = new JButton("게시판 생성");
 		btnBcreate.addActionListener(this);
 		createPanel.add(btnBcreate);
-		// 상단 Panel 배치
-		topPanel.add(searchPanel, BorderLayout.WEST);
-		topPanel.add(lblTitle, BorderLayout.CENTER);
-		topPanel.add(createPanel, BorderLayout.EAST);
+		functionPanel.add(searchPanel, BorderLayout.WEST);
+		functionPanel.add(createPanel, BorderLayout.EAST);
 		
-		// 중앙
 		centerPanel.setBorder(new EmptyBorder(20, 30, 20, 30));
 		// 테이블 컬럼
 		String[] columnNames = {"No", "게시판 이름", "게시판 타입", "게시판 코드", "읽기 권한", "작성 권한", "활성화 여부"};
@@ -139,7 +142,9 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 		scrollPane.getViewport().setBackground(Color.WHITE);
 		scrollPane.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
 		// centerPanel에 추가
+		centerPanel.add(functionPanel, BorderLayout.NORTH);
 		centerPanel.add(scrollPane, BorderLayout.CENTER);
+		
 		// 데이터 표시
 		loadBoardList();
 		
@@ -277,12 +282,15 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 				JOptionPane.showMessageDialog(dialog, "모든 정보를 입력해주세요.", "입력 오류", JOptionPane.WARNING_MESSAGE);
 				return;
 			}
+			if (!code.matches("^[a-zA-Z0-9]*$") || !type.matches("^[a-zA-Z0-9]*$")) { // 영문 확인
+				JOptionPane.showMessageDialog(dialog, "코드와 타입은 영문 또는 숫자만 입력 가능합니다.", "입력 오류", JOptionPane.WARNING_MESSAGE);
+			}
 			TableBoardsDAO dao = new TableBoardsDAO();
-			if (dao.isNameDuplicate(name)) { // 게시판 이름 중복 확인
+			if (dao.isNameDuplicate(name, 0)) { // 게시판 이름 중복 확인
 				JOptionPane.showMessageDialog(dialog, "이미 존재하는 게시판 이름입니다.", "중복 오류", JOptionPane.WARNING_MESSAGE);
 				return;
 			}
-			if (dao.isCodeDuplicate(code)) { // 게시판 코드 중복 확인
+			if (dao.isCodeDuplicate(code, 0)) { // 게시판 코드 중복 확인
 				JOptionPane.showMessageDialog(dialog, "이미 존재하는 게시판 코드입니다.", "중복 오류", JOptionPane.WARNING_MESSAGE);
 				return;
 			}
@@ -371,14 +379,8 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 				JOptionPane.showMessageDialog(dialog, "모든 정보를 입력해주세요.", "입력 오류", JOptionPane.WARNING_MESSAGE);
 				return;
 			}
-			TableBoardsDAO dao = new TableBoardsDAO();
-			if (dao.isNameDuplicate(name)) { // 게시판 이름 중복 확인
-				JOptionPane.showMessageDialog(dialog, "이미 존재하는 게시판 이름입니다.", "중복 오류", JOptionPane.WARNING_MESSAGE);
-				return;
-			}
-			if (dao.isCodeDuplicate(code)) { // 게시판 코드 중복 확인
-				JOptionPane.showMessageDialog(dialog, "이미 존재하는 게시판 코드입니다.", "중복 오류", JOptionPane.WARNING_MESSAGE);
-				return;
+			if (!code.matches("^[a-zA-Z0-9]*$") || !type.matches("^[a-zA-Z0-9]*$")) { // 영문 확인
+				JOptionPane.showMessageDialog(dialog, "코드와 타입은 영문 또는 숫자만 입력 가능합니다.", "입력 오류", JOptionPane.WARNING_MESSAGE);
 			}
 			try { // 권한 레벨(숫자) 확인
 				spinRead.commitEdit();
@@ -387,6 +389,16 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 				JOptionPane.showMessageDialog(dialog, "권한 레벨 설정은 숫자여야 합니다.", "입력 오류", JOptionPane.WARNING_MESSAGE);
 				return;
 			}
+			TableBoardsDAO dao = new TableBoardsDAO();
+			if (dao.isNameDuplicate(name, board.getBoardId())) { // 게시판 이름 중복 확인
+				JOptionPane.showMessageDialog(dialog, "이미 존재하는 게시판 이름입니다.", "중복 오류", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			if (dao.isCodeDuplicate(code, board.getBoardId())) { // 게시판 코드 중복 확인
+				JOptionPane.showMessageDialog(dialog, "이미 존재하는 게시판 코드입니다.", "중복 오류", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			
 			
 			// DB 업데이트
 			TableBoardsDTO updateBoard = new TableBoardsDTO(board.getBoardId(), code, name, type, readRole, writeRole, isActive);
@@ -409,6 +421,11 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 		dialog.add(btnPanel, BorderLayout.SOUTH);
 		
 		dialog.setVisible(true);
+	}
+	
+	// 게시판 검색
+	private void searchBoards() {
+		
 	}
 	
 	@Override
@@ -438,6 +455,7 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 			
 		} else if(event.getSource() == btnBsearch) {
 			// 검색 기능 메서드 추가
+			searchBoards();
 			
 		} else if(event.getSource() == btnBcreate) {
 			// 게시판 생성 메서드 추가
@@ -450,9 +468,3 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 		
 	}
 }
-
-
-//검색, 생성버튼 위치 조정
-//수정 시 기존 정보 중 이름이 같으면 수정이 안됨
-//코드, 타입 작성에는 영어만 입력가능하게 추가
-
