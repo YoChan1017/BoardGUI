@@ -21,7 +21,7 @@ public class DBcon {
 	private static String serverUrl = "jdbc:mariadb://localhost:3307/";
 	private static String dbName = "BoardDB";
 	private static String username = "root";
-	private static String password = "1234";
+	private static String password = "123456";
 	// */
 	
 	// 외부 클래스 연결용

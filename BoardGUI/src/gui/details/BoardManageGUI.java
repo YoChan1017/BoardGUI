@@ -90,15 +90,15 @@ public class BoardManageGUI extends JFrame implements ActionListener {
 		// 중앙
 		JPanel functionPanel = new JPanel(new BorderLayout());
 		// 중앙 - 좌측 상단 - 검색
-				JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
-				String[] searchOptions = {"게시판 이름", "코드"};
-				cbSearchType = new JComboBox<>(searchOptions);
-				txtSearch = new JTextField(15);
-				btnBsearch = new JButton("검색");
-				btnBsearch.addActionListener(this);
-				searchPanel.add(cbSearchType);
-				searchPanel.add(txtSearch);
-				searchPanel.add(btnBsearch);
+		JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+		String[] searchOptions = {"게시판 이름", "코드"};
+		cbSearchType = new JComboBox<>(searchOptions);
+		txtSearch = new JTextField(15);
+		btnBsearch = new JButton("검색");
+		btnBsearch.addActionListener(this);
+		searchPanel.add(cbSearchType);
+		searchPanel.add(txtSearch);
+		searchPanel.add(btnBsearch);
 		// 중앙 - 우측 상단 - 게시판 생성
 		JPanel createPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
 		btnBcreate = new JButton("게시판 생성");

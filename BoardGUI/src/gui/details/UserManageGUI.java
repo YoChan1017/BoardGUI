@@ -2,17 +2,23 @@ package gui.details;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -34,9 +40,11 @@ public class UserManageGUI extends JFrame implements ActionListener {
 	// 회원 검색 추가
 
 	// 필드
+	private JComboBox<String> cbSearchType;
+	private JTextField txtSearch;
 	private DefaultTableModel tableModel;
 	private JTable userTable;
-	private JButton btnmain, btnuser, btnlogout, btnexit;
+	private JButton btnmain, btnuser, btnlogout, btnexit, btnUsearch, btnUcreate;
 	
 	
 	// 생성자
@@ -72,6 +80,25 @@ public class UserManageGUI extends JFrame implements ActionListener {
 		topPanel.add(lblTitle);
 		
 		// 중앙
+		JPanel functionPanel = new JPanel(new BorderLayout());
+		// 중앙 - 좌측 상단 - 회원 검색
+		JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+		String[] searchOptions = {"닉네임", "전화번호"};
+		cbSearchType = new JComboBox<>(searchOptions);
+		txtSearch = new JTextField(15);
+		btnUsearch = new JButton("검색");
+		btnUsearch.addActionListener(this);
+		searchPanel.add(cbSearchType);
+		searchPanel.add(txtSearch);
+		searchPanel.add(btnUsearch);
+		// 중앙 - 우측 상단 - 회원 추가
+		JPanel createPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
+		btnUcreate = new JButton("회원 추가");
+		btnUcreate.addActionListener(this);
+		createPanel.add(btnUcreate);
+		functionPanel.add(searchPanel, BorderLayout.WEST);
+		functionPanel.add(createPanel, BorderLayout.EAST);
+		
 		centerPanel.setBorder(new EmptyBorder(20, 30, 20, 30));
 		// 테이블 컬럼
 		String[] columnNames = {"No", "회원 ID", "회원 PW", "닉네임", "생년월일", "전화번호", "이메일", "회원 권한", "활성화 여부", "가입 날짜"};
@@ -111,6 +138,7 @@ public class UserManageGUI extends JFrame implements ActionListener {
 		scrollPane.getViewport().setBackground(Color.WHITE);
 		scrollPane.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
 		// centerPanel에 추가
+		centerPanel.add(functionPanel, BorderLayout.NORTH);
 		centerPanel.add(scrollPane, BorderLayout.CENTER);
 		// 데이터 표시
 		loadUserList();
@@ -177,6 +205,59 @@ public class UserManageGUI extends JFrame implements ActionListener {
 		}
 	}
 	
+	// 테이블 클릭 이벤트
+	private void addTableSelectionListener() {
+		userTable.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					int row = userTable.getSelectedRow();
+					if (row != -1) {
+						processTableSelection(row);
+					}
+				}
+			}
+		});
+	}
+	
+	// 테이블 선택 처리
+	private void processTableSelection(int row) {
+		int id = (int) userTable.getValueAt(row, 0);
+		String uid = (String) userTable.getValueAt(row, 1);
+		String upw = (String) userTable.getValueAt(row, 2);
+		String name = (String) userTable.getValueAt(row, 3);
+		Date birth = (Date) userTable.getValueAt(row, 4);
+		int phone = (int) userTable.getValueAt(row, 5);
+		String email = (String) userTable.getValueAt(row, 6);
+		String role = (String) userTable.getValueAt(row, 7);
+		String status = (String) userTable.getValueAt(row, 8);
+		boolean isActive = "활성화".equals(status);
+		Timestamp createAt = (Timestamp) userTable.getValueAt(row, 9);
+		
+		TableUsersDTO user = new TableUsersDTO(id, uid, upw, name, birth, phone, email, role, status, isActive, createAt);
+		showEditUserDialog(user);
+	}
+	
+	// 회원 추가
+	private void showCreateUserDialog() {
+		
+	}
+	
+	// 회원 수정
+	private void showEditUserDialog() {
+		JDialog dialog = new JDialog(this, "회원정보 수정", true);
+		dialog.setSize(350, 420);
+		dialog.setLayout(new BorderLayout());
+		dialog.setLocationRelativeTo(this);
+		
+		dialog.setVisible(true);
+	}
+	
+	// 회원 검색
+	private void searchUseres() {
+		
+	}
+	
 	
 	@Override
 	public void actionPerformed(ActionEvent event ) {
@@ -202,6 +283,14 @@ public class UserManageGUI extends JFrame implements ActionListener {
 			// 세션 제거 추가 - 로그아웃 처리
 			// 프로그램 종료로 세션 자동 소멸
 			System.exit(0);
+			
+		} else if(event.getSource() == btnUsearch) {
+			// 검색 기능 메서드 추가
+			searchUseres();
+			
+		} else if(event.getSource() == btnUcreate) {
+			// 회원 추가 메서드 추가
+			showCreateUserDialog();
 			
 		}
 	}
