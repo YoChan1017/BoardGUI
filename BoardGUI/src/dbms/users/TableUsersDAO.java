@@ -227,7 +227,7 @@ public class TableUsersDAO {
 		return user;
 	}
 	
-	// 전체 조회
+	// 전체 조회 - 관리자
 	public ArrayList<TableUsersDTO> getAllUsers() {
 		ArrayList<TableUsersDTO> list = new ArrayList<>();
 		String sql = "SELECT * FROM users ORDER BY user_id ASC";
@@ -253,6 +253,20 @@ public class TableUsersDAO {
 			e.printStackTrace();
 		}
 		return list;
+	}
+	
+	// 특정 회원 비밀번호 변경 - 관리자
+	public int updatePassword(int userId, String newEncryPtedPw) {
+		int result = 0;
+		String sql = "UPDATE users SET password = ? WHERE user_id = ?";
+		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1,  newEncryPtedPw);
+			pstmt.setInt(2, userId);
+			result = pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 	// 필요 시 추가

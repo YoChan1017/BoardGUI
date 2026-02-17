@@ -8,6 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 import java.util.List;
 
@@ -137,6 +139,8 @@ public class UserManageGUI extends JFrame implements ActionListener {
 		userTable.getColumn("활성화 여부").setCellRenderer(centerRenderer);
 		userTable.getColumn("가입 날짜").setPreferredWidth(150);
 		userTable.getColumn("가입 날짜").setCellRenderer(centerRenderer);
+		// 테이블 클릭 이벤트
+		addTableSelectionListener();
 		// 스크롤 추가
 		JScrollPane scrollPane = new JScrollPane(userTable);
 		scrollPane.getViewport().setBackground(Color.WHITE);
@@ -150,7 +154,7 @@ public class UserManageGUI extends JFrame implements ActionListener {
 		// 하단
 		btnmain = new JButton("HOME");
 		btnmain.addActionListener(this);
-		btnuser = new JButton("작성글 보기");
+		btnuser = new JButton("내 정보");
 		btnuser.addActionListener(this);
 		btnlogout = new JButton("로그아웃");
 		btnlogout.addActionListener(this);
@@ -201,8 +205,8 @@ public class UserManageGUI extends JFrame implements ActionListener {
 						u.getPhone(),
 						u.getEmail(),
 						roleDisplay,
-						u.getCreatedAt(),
-						status
+						status,
+						u.getCreatedAt()
 				};
 				tableModel.addRow(rowData);
 			}
@@ -245,7 +249,7 @@ public class UserManageGUI extends JFrame implements ActionListener {
 	private void showEditUserDialog(TableUsersDTO user) {
 		
 		JDialog dialog = new JDialog(this, "회원정보 수정 - 관리자", true);
-		dialog.setSize(400, 520);
+		dialog.setSize(450, 520);
 		dialog.setLayout(new BorderLayout());
 		dialog.setLocationRelativeTo(this);
 		
@@ -336,9 +340,33 @@ public class UserManageGUI extends JFrame implements ActionListener {
 				return;
 			}
 			
+			TableUsersDAO dao = new TableUsersDAO();
+			String hashedPw = hashPassword(newPw);
+			int result = dao.updatePassword(userId, hashedPw);
 			
-			
-			
+			if (result > 0) {
+				JOptionPane.showMessageDialog(this, "비밀번호가 변경되었습니다.");
+				loadUserList();
+			} else {
+				JOptionPane.showMessageDialog(this, "비밀번호 변경에 실패하였습니다.");
+			}
+		}
+	}
+	
+	// 비밀번호 암호화 메서드
+	private String hashPassword(String password) {
+		try {
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			md.update(password.getBytes());
+			byte[] byteData = md.digest();
+			StringBuilder sb = new StringBuilder();
+			for (byte b : byteData) {
+				sb.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
+			}
+			return sb.toString();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 	
