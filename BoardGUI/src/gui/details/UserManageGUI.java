@@ -10,6 +10,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Date;
 import java.util.Calendar;
 import java.util.List;
 
@@ -319,6 +320,58 @@ public class UserManageGUI extends JFrame implements ActionListener {
 		// 수정 버튼 이벤트
 		btnBupdate.addActionListener(e -> {
 			
+			String nick = tfNick.getText().trim();
+			String phone = tfPhone.getText().trim();
+			String email = tfEmail.getText().trim();
+			
+			String y = (String) cbYear.getSelectedItem();
+			String m = (String) cbMonth.getSelectedItem();
+			String d = (String) cbDay.getSelectedItem();
+			Date birthDate = Date.valueOf(y + "-" + m + "-" + d);
+			
+			String selectedRole = (String) cbRole.getSelectedItem();
+			String dbRole = "user";
+			if ("관리자".equals(selectedRole)) dbRole = "admin";
+			else if ("매니저".equals(selectedRole)) dbRole = "manager";
+			
+			TableUsersDAO dao = new TableUsersDAO();
+			
+			// 유효성 검사
+			if (nick.isEmpty() || phone.isEmpty() || email.isEmpty()) { // 모든 칸 입력
+				JOptionPane.showMessageDialog(dialog, "모든 정보를 입력해주세요.", "입력 오류", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			if (!nick.equals(user.getNickname()) && dao.isNicknameDuplicate(nick, user.getUserId())) {
+				JOptionPane.showMessageDialog(dialog, "이미 사용 중인 닉네임입니다.", "중복 오류", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			if (!email.equals(user.getEmail()) && dao.isEmailDuplicate(nick, user.getUserId())) {
+				JOptionPane.showMessageDialog(dialog, "이미 사용 중인 이메일입니다.", "중복 오류", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			
+			TableUsersDTO updatedUser = new TableUsersDTO(
+					user.getUserId(),
+					user.getUsername(),
+					user.getPassword(),
+					nick,
+					birthDate,
+					phone,
+					email,
+					dbRole,
+					chkActive.isSelected(),
+					user.getCreatedAt()
+					);
+			
+			int result = dao.updateUserByAdmin(updatedUser);
+			
+			if (result > 0) {
+				JOptionPane.showMessageDialog(dialog, "회원 정보가 수정되었습니다.");
+				loadUserList();
+				dialog.dispose();
+			} else {
+				JOptionPane.showMessageDialog(dialog, "회원 정보 수정에 실패하였습니다.", "수정 오류", JOptionPane.ERROR_MESSAGE);
+			}	
 		});
 		btnBcancel.addActionListener(e -> dialog.dispose());
 		

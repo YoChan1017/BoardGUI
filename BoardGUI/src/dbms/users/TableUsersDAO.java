@@ -155,10 +155,11 @@ public class TableUsersDAO {
 	}
 	
 	// Nickname 중복 확인
-	public boolean isNicknameDuplicate(String nickname) {
-		String sql = "SELECT 1 FROM users WHERE LOWER(nickname) = LOWER(?)";
+	public boolean isNicknameDuplicate(String nickname, int excludeUserId) {
+		String sql = "SELECT 1 FROM users WHERE nickname = ? AND user_id != ?";
 		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, nickname);
+			pstmt.setInt(2, excludeUserId);
 			try (ResultSet rs = pstmt.executeQuery()) {
 				return rs.next();
 			}
@@ -169,10 +170,11 @@ public class TableUsersDAO {
 	}
 	
 	// Email 중복 확인
-	public boolean isEmailDuplicate(String email) {
-		String sql = "SELECT 1 FROM users WHERE LOWER(email) = LOWER(?)";
+	public boolean isEmailDuplicate(String email, int excludeUserId) {
+		String sql = "SELECT 1 FROM users WHERE email = ? AND user_id != ?";
 		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, email);
+			pstmt.setInt(2, excludeUserId);
 			try (ResultSet rs = pstmt.executeQuery()) {
 				return rs.next();
 			}
@@ -253,6 +255,26 @@ public class TableUsersDAO {
 			e.printStackTrace();
 		}
 		return list;
+	}
+	
+	// 특정 회원 정보 수정 - 관리자
+	public int updateUserByAdmin(TableUsersDTO user) {
+		int result = 0;
+		String sql = "UPDATE users SET nickname = ?, birth_date = ?, phone = ?, email = ?, role = ?, is_active = ? WHERE user_id = ?";
+		try (Connection conn = DBcon.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, user.getNickname());
+			pstmt.setDate(2, user.getBirthDate());
+			pstmt.setString(3, user.getPhone());
+			pstmt.setString(4, user.getEmail());
+			pstmt.setString(5, user.getRole());
+			pstmt.setBoolean(6, user.isActive());
+			pstmt.setInt(7, user.getUserId());
+			result = pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("[관리자]회원정보 수정 실패 : " + e.getMessage());
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 	// 특정 회원 비밀번호 변경 - 관리자
