@@ -3,13 +3,16 @@ package gui.details;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -32,6 +35,7 @@ import dbms.users.TableUsersDTO;
 import gui.LoginGUI;
 import gui.MainGUI;
 import session.UserSession;
+import utils.InputLimit;
 
 public class UserManageGUI extends JFrame implements ActionListener {
 	
@@ -213,7 +217,8 @@ public class UserManageGUI extends JFrame implements ActionListener {
 				if (e.getClickCount() == 2) {
 					int row = userTable.getSelectedRow();
 					if (row != -1) {
-						processTableSelection(row);
+						int userId = (int) userTable.getValueAt(row, 0);
+						processTableSelection(userId);
 					}
 				}
 			}
@@ -221,21 +226,14 @@ public class UserManageGUI extends JFrame implements ActionListener {
 	}
 	
 	// 테이블 선택 처리
-	private void processTableSelection(int row) {
-		int id = (int) userTable.getValueAt(row, 0);
-		String uid = (String) userTable.getValueAt(row, 1);
-		String upw = (String) userTable.getValueAt(row, 2);
-		String name = (String) userTable.getValueAt(row, 3);
-		Date birth = (Date) userTable.getValueAt(row, 4);
-		int phone = (int) userTable.getValueAt(row, 5);
-		String email = (String) userTable.getValueAt(row, 6);
-		String role = (String) userTable.getValueAt(row, 7);
-		String status = (String) userTable.getValueAt(row, 8);
-		boolean isActive = "활성화".equals(status);
-		Timestamp createAt = (Timestamp) userTable.getValueAt(row, 9);
-		
-		TableUsersDTO user = new TableUsersDTO(id, uid, upw, name, birth, phone, email, role, status, isActive, createAt);
-		showEditUserDialog(user);
+	private void processTableSelection(int userId) {
+		TableUsersDAO dao = new TableUsersDAO();
+		TableUsersDTO user = dao.getUserById(userId);
+		if (user != null) {
+			showEditUserDialog(user);
+		} else {
+			JOptionPane.showMessageDialog(this, "회원 정보를 불러올 수 없습니다.", "정보 오류", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 	
 	// 회원 추가
@@ -244,13 +242,104 @@ public class UserManageGUI extends JFrame implements ActionListener {
 	}
 	
 	// 회원 수정
-	private void showEditUserDialog() {
-		JDialog dialog = new JDialog(this, "회원정보 수정", true);
-		dialog.setSize(350, 420);
+	private void showEditUserDialog(TableUsersDTO user) {
+		
+		JDialog dialog = new JDialog(this, "회원정보 수정 - 관리자", true);
+		dialog.setSize(400, 520);
 		dialog.setLayout(new BorderLayout());
 		dialog.setLocationRelativeTo(this);
 		
+		JPanel inputPanel = new JPanel(new GridLayout(9, 2, 10, 10));
+		inputPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+		
+		// 아이디 - 수정불가
+		JTextField tfId = new JTextField(user.getUsername());
+		tfId.setEditable(false);
+		// 비밀번호
+		JButton btnResetPw = new JButton("비밀번호 초기화");
+		btnResetPw.addActionListener(e -> resetPassword(user.getUserId())); // 비밀번호 초기화 버튼 이벤트 메서드로 분리
+		// 회원 정보
+		JTextField tfNick = new JTextField(user.getNickname());
+		JTextField tfPhone = new JTextField(user.getPhone());
+		JTextField tfEmail = new JTextField(user.getEmail());
+		// 입력길이 제한
+		InputLimit.checkMaxLength(tfNick, 10);
+		InputLimit.checkMaxLength(tfPhone, 11);
+		InputLimit.checkMaxLength(tfEmail, 30);
+		// 생년월일
+		JPanel birthPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		JComboBox<String> cbYear = new JComboBox<>();
+		JComboBox<String> cbMonth = new JComboBox<>();
+		JComboBox<String> cbDay = new JComboBox<>();
+		int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+		for(int i = currentYear; i >= 1900; i--) cbYear.addItem(String.valueOf(i));
+		for(int i = 1; i <= 12; i++) cbMonth.addItem(String.format("%02d", i));
+		for(int i = 1; i <= 31; i++) cbDay.addItem(String.format("%02d", i));
+		if (user.getBirthDate() != null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(user.getBirthDate());
+			cbYear.setSelectedItem(String.valueOf(cal.get(Calendar.YEAR)));
+			cbMonth.setSelectedItem(String.format("%02d", cal.get(Calendar.MONTH) + 1));
+			cbDay.setSelectedItem(String.format("%02d", cal.get(Calendar.DAY_OF_MONTH)));
+		}
+		birthPanel.add(cbYear);
+		birthPanel.add(new JLabel("년 "));
+		birthPanel.add(cbMonth);
+		birthPanel.add(new JLabel("월 "));
+		birthPanel.add(cbDay);
+		birthPanel.add(new JLabel("일"));
+		// 권한
+		String[] roles = {"일반", "매니저", "관리자"};
+		JComboBox<String> cbRole = new JComboBox<>(roles);
+		String currentRole = user.getRole();
+		if ("admin".equalsIgnoreCase(currentRole)) cbRole.setSelectedItem("관리자");
+		else if ("manager".equalsIgnoreCase(currentRole)) cbRole.setSelectedItem("매니저");
+		else cbRole.setSelectedItem("일반");
+		// 활성화 여부
+		JCheckBox chkActive = new JCheckBox("계정 활성화", user.isActive());
+		
+		inputPanel.add(new JLabel("아이디 : ")); inputPanel.add(tfId);
+		inputPanel.add(new JLabel("비밀번호 : ")); inputPanel.add(btnResetPw);
+		inputPanel.add(new JLabel("닉네임 : ")); inputPanel.add(tfNick);
+		inputPanel.add(new JLabel("생년월일 : ")); inputPanel.add(birthPanel);
+		inputPanel.add(new JLabel("전화번호 : ")); inputPanel.add(tfPhone);
+		inputPanel.add(new JLabel("이메일 : ")); inputPanel.add(tfEmail);
+		inputPanel.add(new JLabel("회원 권한 : ")); inputPanel.add(cbRole);
+		inputPanel.add(new JLabel("활성화 여부 : ")); inputPanel.add(chkActive);
+		inputPanel.add(new JLabel("가입날짜 : ")); inputPanel.add(new JLabel(user.getCreatedAt().toString()));
+		
+		JPanel btnPanel = new JPanel();
+		JButton btnBupdate = new JButton("수정");
+		JButton btnBcancel = new JButton("취소");
+		
+		// 수정 버튼 이벤트
+		btnBupdate.addActionListener(e -> {
+			
+		});
+		btnBcancel.addActionListener(e -> dialog.dispose());
+		
+		btnPanel.add(btnBupdate);
+		btnPanel.add(btnBcancel);
+		
+		dialog.add(inputPanel, BorderLayout.CENTER);
+		dialog.add(btnPanel, BorderLayout.SOUTH);
+		
 		dialog.setVisible(true);
+	}
+	
+	// 비밀번호 초기화
+	private void resetPassword(int userId) {
+		String newPw = JOptionPane.showInputDialog(this, "새로운 비밀번호를 입력하세요 : ", "비밀번호 초기화", JOptionPane.QUESTION_MESSAGE);
+		if (newPw != null && !newPw.trim().isEmpty()) {
+			if (newPw.length() < 10) {
+				JOptionPane.showMessageDialog(this, "비밀번호는 10자리 이상이어야 합니다.");
+				return;
+			}
+			
+			
+			
+			
+		}
 	}
 	
 	// 회원 검색
